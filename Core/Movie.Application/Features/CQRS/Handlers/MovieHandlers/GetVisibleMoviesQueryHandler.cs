@@ -1,21 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Movie.Application.Features.CQRS.Results.MovieResults;
-using Movie.Persistence.Context;
+﻿using Movie.Application.Features.CQRS.Results.MovieResults;
+using Movie.Application.Interfaces;
+using Movie.Domain.Entities;
 
 namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 {
     public class GetVisibleMoviesQueryHandler
     {
-        private readonly MovieContext _context;
+        private readonly IRepository<Film> _repository;
 
-        public GetVisibleMoviesQueryHandler(MovieContext context)
+        public GetVisibleMoviesQueryHandler(IRepository<Film> repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<List<GetVisibleMoviesQueryResult>> Handle()
         {
-            var movies = await _context.Films.Where(f => f.IsActive && f.IsVisible).ToListAsync();
+            var movies = await _repository.GetFilteredListAsync(f => f.IsActive && f.IsVisible);
 
             return movies.Select(x => new GetVisibleMoviesQueryResult
             {

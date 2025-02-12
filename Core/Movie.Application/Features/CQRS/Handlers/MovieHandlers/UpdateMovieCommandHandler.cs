@@ -1,36 +1,37 @@
 ﻿using Movie.Application.Features.CQRS.Commands.MovieCommands;
-using Movie.Persistence.Context;
+using Movie.Application.Interfaces;
+using Movie.Domain.Entities;
 
 namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 {
     public class UpdateMovieCommandHandler
     {
-        private readonly MovieContext _context;
+        private readonly IRepository<Film> _repository;
 
-        public UpdateMovieCommandHandler(MovieContext context)
+        public UpdateMovieCommandHandler(IRepository<Film> repository)
         {
-            _context = context;
+            _repository = repository;
         }
         
         public async Task Handler(UpdateMovieCommand command)
         {
-            var value = await _context.Films.FindAsync(command.FilmID);
+            var film = await _repository.GetByIdAsync(command.FilmID);
 
-            if (value == null)
+            if (film == null)
             {
                 throw new KeyNotFoundException($"Movie with ID {command.FilmID} not found.");
             }
 
-            value.Title = command.Title;
-            value.CoverImageUrl = command.CoverImageUrl;
-            value.Rating = command.Rating;
-            value.Description = command.Description;
-            value.Duration = command.Duration;
-            value.ReleaseDate = command.ReleaseDate;
-            value.IsActive = command.IsActive;
-            value.IsVisible = command.IsVisible;
+            film.Title = command.Title;
+            film.CoverImageUrl = command.CoverImageUrl;
+            film.Rating = command.Rating;
+            film.Description = command.Description;
+            film.Duration = command.Duration;
+            film.ReleaseDate = command.ReleaseDate;
+            film.IsActive = command.IsActive;
+            film.IsVisible = command.IsVisible;
 
-            await _context.SaveChangesAsync();
+            await _repository.UpdateAsync(film);
         }
     }
 }

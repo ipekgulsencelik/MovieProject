@@ -1,21 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Movie.Application.Features.CQRS.Commands.MovieCommands;
-using Movie.Persistence.Context;
+﻿using Movie.Application.Features.CQRS.Commands.MovieCommands;
+using Movie.Application.Interfaces;
+using Movie.Domain.Entities;
 
 namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 {
     public class ShowMovieCommandHandler
     {
-        private readonly MovieContext _context;
+        private readonly IRepository<Film> _repository;
 
-        public ShowMovieCommandHandler(MovieContext context)
+        public ShowMovieCommandHandler(IRepository<Film> repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<bool> Handle(ShowMovieCommand command)
         {
-            var film = await _context.Films.FindAsync(command.FilmID);
+            var film = await _repository.GetByIdAsync(command.FilmID);
 
             if (film == null)
                 throw new KeyNotFoundException($"Film with ID {command.FilmID} not found.");
@@ -23,9 +23,11 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
             if (film.IsActive == false)
                 return false;
 
-            var updatedRows = await _context.Films.Where(f => f.FilmID == command.FilmID && f.IsActive).ExecuteUpdateAsync(setters => setters.SetProperty(f => f.IsVisible, true));
+            film.IsVisible = true;
 
-            return updatedRows > 0;
+            _repository.UpdateAsync(film);
+
+            return true;
         }
     }
 }

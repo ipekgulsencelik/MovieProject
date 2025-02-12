@@ -7,13 +7,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{02EA681E-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movie.Domain", "Core\Movie.Domain\Movie.Domain.csproj", "{46651AB9-FB70-4F7C-A360-ACAA2A3EC366}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{3007CAC2-FEAB-4310-B108-86E8B59C8709}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movie.Persistence", "Infrastructure\Movie.Persistence\Movie.Persistence.csproj", "{C79490CC-6E0B-4321-A1E0-E120FB2A5408}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{1EAB2654-CF3A-42BD-90FF-C3D4D9CE5E43}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movie.WebAPI", "Presentation\Movie.WebAPI\Movie.WebAPI.csproj", "{55AF4D24-DA4C-4B33-A40E-6307FF4A87A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movie.Application", "Core\Movie.Application\Movie.Application.csproj", "{9FFC9146-0EB6-4E65-B29A-17CF420EF59F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{55AF4D24-DA4C-4B33-A40E-6307FF4A87A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55AF4D24-DA4C-4B33-A40E-6307FF4A87A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55AF4D24-DA4C-4B33-A40E-6307FF4A87A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FFC9146-0EB6-4E65-B29A-17CF420EF59F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FFC9146-0EB6-4E65-B29A-17CF420EF59F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FFC9146-0EB6-4E65-B29A-17CF420EF59F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FFC9146-0EB6-4E65-B29A-17CF420EF59F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +47,7 @@ Global
 		{46651AB9-FB70-4F7C-A360-ACAA2A3EC366} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{C79490CC-6E0B-4321-A1E0-E120FB2A5408} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{55AF4D24-DA4C-4B33-A40E-6307FF4A87A9} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{9FFC9146-0EB6-4E65-B29A-17CF420EF59F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C64F7B63-3CFB-4DBD-A9A9-53EAFD393059}

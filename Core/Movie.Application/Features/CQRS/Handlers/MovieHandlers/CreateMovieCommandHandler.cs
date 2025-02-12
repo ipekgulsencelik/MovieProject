@@ -1,16 +1,16 @@
 ﻿using Movie.Application.Features.CQRS.Commands.MovieCommands;
+using Movie.Application.Interfaces;
 using Movie.Domain.Entities;
-using Movie.Persistence.Context;
 
 namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 {
     public class CreateMovieCommandHandler
     {
-        private readonly MovieContext _context;
+        private readonly IRepository<Film> _repository;
 
-        public CreateMovieCommandHandler(MovieContext context)
+        public CreateMovieCommandHandler(IRepository<Film> repository)
         {
-            _context = context;
+            _repository = repository;
         }
         
         public async Task Handle(CreateMovieCommand command)
@@ -27,8 +27,7 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
                 IsActive = command.IsActive
             };
 
-            _context.Films.Add(film);
-            await _context.SaveChangesAsync();
+            await _repository.CreateAsync(film);
         }
     }
 }
