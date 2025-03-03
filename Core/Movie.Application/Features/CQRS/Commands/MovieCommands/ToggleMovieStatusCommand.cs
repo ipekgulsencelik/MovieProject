@@ -2,6 +2,11 @@
 {
     public class ToggleMovieStatusCommand
     {
+        public ToggleMovieStatusCommand(int filmID)
+        {
+            FilmID = filmID;
+        }
+
         public int FilmID { get; set; }
     }
 }

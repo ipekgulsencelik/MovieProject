@@ -2,6 +2,11 @@
 {
     public class RemoveMovieCommand
     {
+        public RemoveMovieCommand(int filmID)
+        {
+            FilmID = filmID;
+        }
+
         public int FilmID { get; set; }
     }
 }

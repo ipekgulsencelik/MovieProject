@@ -13,7 +13,7 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
             _repository = repository;
         }
         
-        public async Task Handler(UpdateMovieCommand command)
+        public async Task Handle(UpdateMovieCommand command)
         {
             var film = await _repository.GetByIdAsync(command.FilmID);
 

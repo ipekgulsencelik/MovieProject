@@ -2,6 +2,11 @@
 {
     public class ShowMovieCommand
     {
+        public ShowMovieCommand(int filmID)
+        {
+            FilmID = filmID;
+        }
+
         public int FilmID { get; set; }
     }
 }
