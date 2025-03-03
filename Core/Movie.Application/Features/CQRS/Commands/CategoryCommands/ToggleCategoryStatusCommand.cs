@@ -2,6 +2,11 @@
 {
     public class ToggleCategoryStatusCommand
     {
+        public ToggleCategoryStatusCommand(int categoryID)
+        {
+            CategoryID = categoryID;
+        }
+
         public int CategoryID { get; set; }
     }
 }

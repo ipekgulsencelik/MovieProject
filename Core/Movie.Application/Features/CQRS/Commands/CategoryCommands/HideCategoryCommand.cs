@@ -2,6 +2,11 @@
 {
     public class HideCategoryCommand
     {
+        public HideeCategoryCommand(int categoryID)
+        {
+            CategoryID = categoryID;
+        }
+
         public int CategoryID { get; set; }
     }
 }

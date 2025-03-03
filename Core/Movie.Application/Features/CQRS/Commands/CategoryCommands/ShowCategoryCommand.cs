@@ -2,6 +2,11 @@
 {
     public class ShowCategoryCommand
     {
+        public ShowCategoryCommand(int categoryID)
+        {
+            CategoryID = categoryID;
+        }
+
         public int CategoryID { get; set; }
     }
 }
