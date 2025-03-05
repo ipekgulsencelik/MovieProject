@@ -1,17 +1,29 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Handlers.MovieHandlers;
+using Movie.Application.Interfaces;
 using Movie.Persistence.Context;
+using Movie.Persistence.Repositories;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddDbContext<MovieContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
     options.UseLazyLoadingProxies();
 });
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
+
 
 builder.Services.AddScoped<GetCategoryQueryHandler>();
 builder.Services.AddScoped<GetActiveCategoriesQueryHandler>();
@@ -36,15 +48,22 @@ builder.Services.AddScoped<UpdateMovieCommandHandler>();
 builder.Services.AddScoped<ToggleMovieStatusCommandHandler>();
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Movie API", Version = "v1" });
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Movie API V1");
+    });
 }
 
 app.UseHttpsRedirection();

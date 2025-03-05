@@ -2,7 +2,7 @@
 {
     public class HideCategoryCommand
     {
-        public HideeCategoryCommand(int categoryID)
+        public HideCategoryCommand(int categoryID)
         {
             CategoryID = categoryID;
         }
