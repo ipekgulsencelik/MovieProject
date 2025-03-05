@@ -3,7 +3,7 @@
     public class Category
     {
         public int CategoryID { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } 
         public bool IsVisible { get; set; } = false;
         public bool IsActive { get; set; } = true;
 

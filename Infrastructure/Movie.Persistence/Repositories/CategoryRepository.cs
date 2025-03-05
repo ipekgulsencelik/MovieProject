@@ -16,24 +16,60 @@ namespace Movie.Persistence.Repositories
             return await _context.Categories.Where(c => c.IsActive).ToListAsync();
         }
 
-        public Task<List<Category>> GetVisibleCategoriesAsync()
+        public async Task<List<Category>> GetVisibleCategoriesAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Categories.Where(c => c.IsActive && c.IsVisible).ToListAsync();
         }
 
-        public Task HideCategoryAsync(int id)
+        public async Task HideCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var value = await _context.Categories.FindAsync(id);
+
+            if (value == null)
+            {
+                throw new KeyNotFoundException($"Category with ID {id} not found.");
+            }
+
+            if (value.IsActive && value.IsVisible)
+            {
+                value.IsVisible = false;
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task ShowCategoryAsync(int id)
+        public async Task ShowCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var value = await _context.Categories.FindAsync(id);
+
+            if (value == null)
+            {
+                throw new KeyNotFoundException($"Category with ID {id} not found.");
+            }
+
+            if (value.IsActive && !value.IsVisible)
+            {
+                value.IsVisible = true;
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task ToggleCategoryStatusAsync(int id)
+        public async Task ToggleCategoryStatusAsync(int id)
         {
-            throw new NotImplementedException();
+            var value = await _context.Categories.FindAsync(id);
+
+            if (value == null)
+            {
+                throw new KeyNotFoundException($"Category with ID {id} not found.");
+            }
+
+            value.IsActive = !value.IsActive;
+
+            if (!value.IsActive) 
+            {
+                value.IsVisible = false;
+            }
+
+            await _context.SaveChangesAsync(); 
         }
     }
 }
