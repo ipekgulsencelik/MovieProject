@@ -22,6 +22,11 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
             film.IsActive = !film.IsActive;
 
+            if (!film.IsActive)
+            {
+                film.IsVisible = false;
+            }
+
             _repository.UpdateAsync(film);
         }
     }

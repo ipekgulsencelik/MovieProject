@@ -23,8 +23,8 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
                 Description = command.Description,
                 Duration = command.Duration,
                 ReleaseDate = command.ReleaseDate,
-                IsVisible = command.IsVisible,
-                IsActive = command.IsActive
+                IsVisible = false,
+                IsActive = true
             };
 
             await _repository.CreateAsync(film);
