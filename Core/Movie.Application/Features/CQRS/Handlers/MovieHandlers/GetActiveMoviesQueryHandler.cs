@@ -15,11 +15,11 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
         public async Task<List<GetActiveMoviesQueryResult>> Handle()
         {
-            var movies = await _repository.GetFilteredListAsync(f => f.IsActive);
+            var movies = await _repository.GetListByFilterAsync(f => f.IsActive);
 
             return movies.Select(x => new GetActiveMoviesQueryResult
             {
-                FilmID = x.FilmID,
+                FilmID = x.Id,
                 Title = x.Title,
                 CoverImageUrl = x.CoverImageUrl,
                 Rating = x.Rating,

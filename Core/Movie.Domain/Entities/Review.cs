@@ -1,14 +1,23 @@
-﻿namespace Movie.Domain.Entities
-{
-    public class Review
-    {
-        public int ReviewID { get; set; }
-        public string? Comment { get; set; }
-        public decimal Rating { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
-        public bool IsApproved { get; set; } = false; // Yorum onaylandı mı?
+﻿using Movie.Domain.Entities.Abstract;
+using Movie.Domain.Entities.Enum;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-        public int FilmID { get; set; }
+namespace Movie.Domain.Entities
+{
+    public class Review : BaseEntity
+    {
+        public string? Comment { get; set; }
+
+        [Range(0, 10)]
+        public decimal Rating { get; set; }
+
+        public DateTime ReviewDate { get; set; } = DateTime.UtcNow;
+        public ReviewStatus ReviewStatus { get; set; } = ReviewStatus.Pending;
+
+        public int FilmId { get; set; }
+
+        [ForeignKey(nameof(FilmId))]
         public virtual Film Film { get; set; } = null!;
     }
 }

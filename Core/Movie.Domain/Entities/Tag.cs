@@ -1,10 +1,9 @@
-﻿namespace Movie.Domain.Entities
+﻿using Movie.Domain.Entities.Abstract;
+
+namespace Movie.Domain.Entities
 {
-    public class Tag
+    public class Tag : BaseEntity
     {
-        public int TagID { get; set; }
-        public string Title { get; set; }
-        public bool IsVisible { get; set; } = false;
-        public bool IsActive { get; set; } = true;
+        public string Title { get; set; } = string.Empty;
     }
 }

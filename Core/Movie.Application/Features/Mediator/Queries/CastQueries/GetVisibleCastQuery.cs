@@ -3,7 +3,7 @@ using Movie.Application.Features.Mediator.Results.CastResults;
 
 namespace Movie.Application.Features.Mediator.Queries.CastQueries
 {
-    public class GetVisibleCastQuery : IRequest<List<GetVisibleCastQueryResult>>
+    public class GetVisibleCastQuery : IRequest<List<GetVisibleCastsQueryResult>>
     {
     }
 }

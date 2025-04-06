@@ -15,11 +15,11 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
         
         public async Task Handle(UpdateMovieCommand command)
         {
-            var film = await _repository.GetByIdAsync(command.FilmID);
+            var film = await _repository.GetByIdAsync(command.Id);
 
             if (film == null)
             {
-                throw new KeyNotFoundException($"Movie with ID {command.FilmID} not found.");
+                throw new KeyNotFoundException($"Movie with ID {command.Id} not found.");
             }
 
             film.Title = command.Title;

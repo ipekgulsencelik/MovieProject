@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
 using Movie.Application.Features.CQRS.Results.CategoryResults;
 using Movie.Application.Interfaces;
+using Movie.Domain.Entities;
 
 namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
 {
     public class GetVisibleCategoriesQueryHandler
     {
-        private readonly ICategoryRepository _repository;
+        private readonly IRepository<Category> _repository;
         private readonly IMapper _mapper;
 
-        public GetVisibleCategoriesQueryHandler(ICategoryRepository repository, IMapper mapper)
+        public GetVisibleCategoriesQueryHandler(IRepository<Category> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -17,7 +18,7 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
 
         public async Task<List<GetVisibleCategoriesQueryResult>> Handle()
         {
-            var categories = await _repository.GetVisibleCategoriesAsync();
+            var categories = await _repository.GetVisibleAsync();
             return _mapper.Map<List<GetVisibleCategoriesQueryResult>>(categories);
         }
     }

@@ -1,8 +1,15 @@
-﻿namespace Movie.Application.Features.Mediator.Results.CastResults
+﻿using Movie.Domain.Entities.Enum;
+
+namespace Movie.Application.Features.Mediator.Results.CastResults
 {
     public class GetCastQueryResult
     {
-        public int CastID { get; set; }
+        public int Id { get; set; }
+        public DataStatus DataStatus { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
+        
         public string Title { get; set; }
         public string Name { get; set; }
         public string LastName { get; set; }

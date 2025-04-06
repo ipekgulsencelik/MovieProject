@@ -1,12 +1,11 @@
-﻿namespace Movie.Domain.Entities
-{
-    public class Category
-    {
-        public int CategoryID { get; set; }
-        public string Name { get; set; } 
-        public bool IsVisible { get; set; } = false;
-        public bool IsActive { get; set; } = true;
+﻿using Movie.Domain.Entities.Abstract;
 
-        public virtual ICollection<Film> Films { get; set; } = new List<Film>();
+namespace Movie.Domain.Entities
+{
+    public class Category : BaseEntity
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public virtual ICollection<Film> Films { get; set; } = new HashSet<Film>();
     }
 }

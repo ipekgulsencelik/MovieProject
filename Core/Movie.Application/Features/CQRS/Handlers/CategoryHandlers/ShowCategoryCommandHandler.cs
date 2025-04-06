@@ -1,20 +1,21 @@
 ﻿using Movie.Application.Features.CQRS.Commands.CategoryCommands;
 using Movie.Application.Interfaces;
+using Movie.Domain.Entities;
 
 namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
 {
     public class ShowCategoryCommandHandler
     {
-        private readonly ICategoryRepository _repository;
+        private readonly IRepository<Category> _repository;
 
-        public ShowCategoryCommandHandler(ICategoryRepository repository)
+        public ShowCategoryCommandHandler(IRepository<Category> repository)
         {
             _repository = repository;
         }
 
         public async Task Handle(ShowCategoryCommand command)
         {
-            await _repository.ShowCategoryAsync(command.CategoryID);
+            await _repository.ShowAsync(command.CategoryID);
         }
     }
 }

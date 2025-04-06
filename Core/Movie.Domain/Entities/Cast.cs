@@ -1,15 +1,14 @@
-﻿namespace Movie.Domain.Entities
+﻿using Movie.Domain.Entities.Abstract;
+
+namespace Movie.Domain.Entities
 {
-    public class Cast
+    public class Cast : BaseEntity
     {
-        public int CastID { get; set; }
-        public string Title { get; set; }
-        public string Name { get; set; }
-        public string LastName { get; set; }
-        public string ImageUrl { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
         public string? Overview { get; set; }
         public string? Biography { get; set; }
-        public bool IsVisible { get; set; } = false;
-        public bool IsActive { get; set; } = true;
     }
 }

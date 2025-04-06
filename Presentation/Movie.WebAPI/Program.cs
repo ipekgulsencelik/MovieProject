@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Handlers.MovieHandlers;
+using Movie.Application.Features.Mediator.Handlers.TagHandlers;
 using Movie.Application.Interfaces;
 using Movie.Persistence.Context;
 using Movie.Persistence.Repositories;
@@ -15,6 +16,8 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(GetTagQueryHandler).Assembly));
+
 builder.Services.AddDbContext<MovieContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
@@ -23,7 +26,6 @@ builder.Services.AddDbContext<MovieContext>(options =>
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
-
 
 builder.Services.AddScoped<GetCategoryQueryHandler>();
 builder.Services.AddScoped<GetActiveCategoriesQueryHandler>();

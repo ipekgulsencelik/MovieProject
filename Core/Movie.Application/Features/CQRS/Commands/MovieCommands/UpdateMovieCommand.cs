@@ -2,7 +2,7 @@
 {
     public class UpdateMovieCommand
     {
-        public int FilmID { get; set; }
+        public int Id { get; set; }
         public string? Title { get; set; }
         public string? CoverImageUrl { get; set; }
         public decimal Rating { get; set; }

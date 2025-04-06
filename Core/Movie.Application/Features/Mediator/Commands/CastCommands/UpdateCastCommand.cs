@@ -4,7 +4,7 @@ namespace Movie.Application.Features.Mediator.Commands.CastCommands
 {
     public class UpdateCastCommand : IRequest
     {
-        public int CastID { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Name { get; set; }
         public string LastName { get; set; }
