@@ -1,0 +1,30 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+	@await Component.InvokeAsync("_UserLayoutHeadComponentPartial")
+<body>
+
+	@await Component.InvokeAsync("_UserLayoutPreloaderComponentPartial")
+
+	@await Component.InvokeAsync("_UserLayoutLoginModalComponentPartial")
+
+	@await Component.InvokeAsync("_UserLayoutRegisterModalComponentPartial")
+
+	@await Component.InvokeAsync("_UserLayoutNavbarComponentPartial")
+
+	@await Component.InvokeAsync("_UserLayoutHeroComponentPartial")
+
+	@RenderBody()
+
+	@await Component.InvokeAsync("_UserLayoutFooterComponentPartial")
+
+	<script src="/Film-Review-Movie-Database/js/jquery.js"></script>
+	<script src="/Film-Review-Movie-Database/js/plugins.js"></script>
+	<script src="/Film-Review-Movie-Database/js/plugins2.js"></script>
+	<script src="/Film-Review-Movie-Database/js/custom.js"></script>
+</body>
+</html>
