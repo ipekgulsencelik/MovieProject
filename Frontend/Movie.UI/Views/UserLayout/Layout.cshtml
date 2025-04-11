@@ -18,13 +18,15 @@
 
 	@await Component.InvokeAsync("_UserLayoutHeroComponentPartial")
 
-	@RenderBody()
-
+	<main>
+		@RenderBody()
+	</main>
+	
 	@await Component.InvokeAsync("_UserLayoutFooterComponentPartial")
 
-	<script src="/Film-Review-Movie-Database/js/jquery.js"></script>
-	<script src="/Film-Review-Movie-Database/js/plugins.js"></script>
-	<script src="/Film-Review-Movie-Database/js/plugins2.js"></script>
-	<script src="/Film-Review-Movie-Database/js/custom.js"></script>
+	<script src="~/Film-Review-Movie-Database/js/jquery.js"></script>
+	<script src="~/Film-Review-Movie-Database/js/plugins.js"></script>
+	<script src="~/Film-Review-Movie-Database/js/plugins2.js"></script>
+	<script src="~/Film-Review-Movie-Database/js/custom.js"></script>
 </body>
 </html>
