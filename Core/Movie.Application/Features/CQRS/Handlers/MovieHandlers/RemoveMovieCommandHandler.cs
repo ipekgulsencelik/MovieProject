@@ -15,7 +15,7 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
         public async Task Handle(RemoveMovieCommand command)
         {
-            await _repository.DeleteAsync(command.FilmID);
+            await _repository.DeleteAsync(command.FilmId);
         }
     }
 }

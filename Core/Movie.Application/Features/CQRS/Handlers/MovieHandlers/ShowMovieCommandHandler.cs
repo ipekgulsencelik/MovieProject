@@ -15,17 +15,17 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
         public async Task<bool> Handle(ShowMovieCommand command)
         {
-            var film = await _repository.GetByIdAsync(command.FilmID);
+            var film = await _repository.GetByIdAsync(command.FilmId);
 
             if (film == null)
-                throw new KeyNotFoundException($"Film with ID {command.FilmID} not found.");
+                throw new KeyNotFoundException($"Film with ID {command.FilmId} not found.");
 
             if (film.IsActive == false)
                 return false;
 
             film.IsVisible = true;
 
-            _repository.UpdateAsync(film);
+            await _repository.UpdateAsync(film);
 
             return true;
         }

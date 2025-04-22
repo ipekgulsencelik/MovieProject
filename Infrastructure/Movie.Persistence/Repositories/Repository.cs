@@ -73,7 +73,7 @@ namespace Movie.Persistence.Repositories
 
         public async Task<List<T>> GetVisibleAsync()
         {
-            return await Table.Where(x => x.IsVisible).ToListAsync();
+            return await Table.Where(x => x.IsActive && x.IsVisible).ToListAsync();
         }
 
         public async Task HideAsync(int id)

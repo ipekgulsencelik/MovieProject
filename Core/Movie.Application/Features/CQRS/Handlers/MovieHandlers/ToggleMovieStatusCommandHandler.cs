@@ -15,10 +15,10 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
         public async Task Handle(ToggleMovieStatusCommand command)
         {
-            var film = await _repository.GetByIdAsync(command.FilmID);
+            var film = await _repository.GetByIdAsync(command.FilmId);
 
             if (film == null)
-                throw new KeyNotFoundException($"Film with ID {command.FilmID} not found.");
+                throw new KeyNotFoundException($"Film with ID {command.FilmId} not found.");
 
             film.IsActive = !film.IsActive;
 
@@ -27,7 +27,7 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
                 film.IsVisible = false;
             }
 
-            _repository.UpdateAsync(film);
+            await _repository.UpdateAsync(film);
         }
     }
 }

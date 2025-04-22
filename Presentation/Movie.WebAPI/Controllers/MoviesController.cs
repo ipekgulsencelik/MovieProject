@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Movie.Application.Features.CQRS.Commands.CategoryCommands;
 using Movie.Application.Features.CQRS.Commands.MovieCommands;
-using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Handlers.MovieHandlers;
 using Movie.Application.Features.CQRS.Queries.MovieQueries;
 

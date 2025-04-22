@@ -2,11 +2,11 @@
 {
     public class HideMovieCommand
     {
-        public HideMovieCommand(int filmID)
-        {
-            FilmID = filmID;
-        }
+        public int FilmId { get; set; }
 
-        public int FilmID { get; set; }
+        public HideMovieCommand(int filmId)
+        {
+            FilmId = filmId;
+        }
     }
 }

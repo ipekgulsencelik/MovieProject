@@ -19,7 +19,7 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
         public async Task<GetMovieByIdQueryResult> Handle(GetMovieByIdQuery query)
         {
-            var movie = await _repository.GetByIdAsync(query.FilmID);
+            var movie = await _repository.GetByIdAsync(query.FilmId);
             return _mapper.Map<GetMovieByIdQueryResult>(movie);
         }
     }

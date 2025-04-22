@@ -1,8 +1,15 @@
-﻿namespace Movie.Application.Features.CQRS.Results.MovieResults
+﻿using Movie.Domain.Entities.Enum;
+
+namespace Movie.Application.Features.CQRS.Results.MovieResults
 {
     public class GetMovieQueryResult
     {
-        public int FilmID { get; set; }
+        public int Id { get; set; }
+        public DataStatus DataStatus { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
+
         public string? Title { get; set; }
         public string? CoverImageUrl { get; set; }
         public decimal Rating { get; set; }

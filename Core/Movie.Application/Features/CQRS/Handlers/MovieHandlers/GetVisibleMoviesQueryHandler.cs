@@ -19,7 +19,11 @@ namespace Movie.Application.Features.CQRS.Handlers.MovieHandlers
 
             return movies.Select(x => new GetVisibleMoviesQueryResult
             {
-                FilmID = x.Id,
+                Id = x.Id,
+                CreatedDate = x.CreatedDate,
+                DataStatus = x.DataStatus,
+                DeletedDate = x.DeletedDate,
+                ModifiedDate = x.ModifiedDate,
                 Title = x.Title,
                 CoverImageUrl = x.CoverImageUrl,
                 Rating = x.Rating,
