@@ -17,5 +17,11 @@ namespace Movie.UI.Controllers
             var values = await _client.GetFromJsonAsync<List<ResultMovieDTO>>("Movies/visible");
             return View(values);
         }
+
+        public async Task<IActionResult> MovieDetail(int id)
+        {
+            id = 0;
+            return View();
+        }
     }
 }
