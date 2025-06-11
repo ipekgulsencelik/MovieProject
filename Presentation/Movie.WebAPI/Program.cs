@@ -2,8 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Handlers.MovieHandlers;
+using Movie.Application.Features.CQRS.Handlers.UserRegisterHandlers;
 using Movie.Application.Features.Mediator.Handlers.TagHandlers;
 using Movie.Application.Interfaces;
+using Movie.Application.Validators;
+using Movie.Domain.Entities;
 using Movie.Persistence.Context;
 using Movie.Persistence.Repositories;
 using System.Reflection;
@@ -27,6 +30,7 @@ builder.Services.AddDbContext<MovieContext>(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
 
+// CQRS Handlers
 builder.Services.AddScoped<GetCategoryQueryHandler>();
 builder.Services.AddScoped<GetActiveCategoriesQueryHandler>();
 builder.Services.AddScoped<GetVisibleCategoriesQueryHandler>();
@@ -48,6 +52,9 @@ builder.Services.AddScoped<HideMovieCommandHandler>();
 builder.Services.AddScoped<ShowMovieCommandHandler>();
 builder.Services.AddScoped<UpdateMovieCommandHandler>();
 builder.Services.AddScoped<ToggleMovieStatusCommandHandler>();
+
+builder.Services.AddScoped<CreateUserRegisterCommandHandler>();
+builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<MovieContext>().AddErrorDescriber<CustomErrorDescriber>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

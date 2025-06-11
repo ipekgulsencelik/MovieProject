@@ -18,6 +18,7 @@ namespace Movie.UI.Controllers
             return View(values);
         }
 
+        [HttpGet]
         public async Task<IActionResult> MovieDetail(int id)
         {
             id = 0;

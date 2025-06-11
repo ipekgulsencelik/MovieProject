@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Movie.Domain.Entities;
 
 namespace Movie.Persistence.Context
 {
-    public class MovieContext : DbContext
+    public class MovieContext : IdentityDbContext<AppUser, AppRole, int>
     {
         public MovieContext(DbContextOptions options) : base(options)
         {
