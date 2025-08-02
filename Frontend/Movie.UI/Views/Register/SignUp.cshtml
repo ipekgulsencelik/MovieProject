@@ -16,6 +16,15 @@
 	<link rel="stylesheet" type="text/css" href="/colorlib-regform-31/fonts/font-awesome-5/css/fontawesome-all.min.css">
 	<!-- Main Style Css -->
 	<link rel="stylesheet" href="/colorlib-regform-31/css/style.css" />
+
+	<style>
+		.text-danger {
+		  color: #e74c3c;
+		  font-size: 0.9rem;
+		  margin-top: 4px;
+		  display: block;
+		}
+	</style>
 </head>
 <body class="form-v5">
 	<div class="page-content">
@@ -50,8 +59,16 @@
 				<div class="form-row-last">
 					<input type="submit" class="register" value="Kayıt Ol">
 				</div>
+				<!-- Genel hata mesajlarını göstermek için -->
+				<div>
+					<span asp-validation-summary="ModelOnly" class="text-danger"></span>
+				</div>
 			</form>
 		</div>
 	</div>
-</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation/1.19.5/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+</body>
 </html>

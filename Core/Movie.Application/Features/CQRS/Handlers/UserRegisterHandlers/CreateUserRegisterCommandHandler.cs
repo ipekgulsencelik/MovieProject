@@ -17,7 +17,7 @@ namespace Movie.Application.Features.CQRS.Handlers.UserRegisterHandlers
         {
             var user = new AppUser
             {
-                UserName = command.Username,
+                UserName = command.UserName,
                 Email = command.Email,
                 Name = command.Name,
                 Surname = command.Surname
