@@ -1,4 +1,6 @@
-﻿namespace Movie.DTO.DTOs.MovieDTOs
+﻿using Movie.Domain.Entities.Enum;
+
+namespace Movie.DTO.DTOs.MovieDTOs
 {
     public class ResultMovieDTO
     {
@@ -9,5 +11,6 @@
         public string Description { get; set; }
         public int Duration { get; set; }
         public DateTime ReleaseDate { get; set; }
+        public MovieStatus MovieStatus { get; set; }
     }
 }

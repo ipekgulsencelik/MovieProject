@@ -3,6 +3,8 @@
     public enum MovieStatus
     {
         InStock = 1,
-        NotInStock = 2
+        NotInStock = 2,
+        ComingSoon = 3,
+        Archived = 4
     }
 }

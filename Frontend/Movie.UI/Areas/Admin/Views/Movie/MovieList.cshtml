@@ -1,8 +1,752 @@
-﻿
+﻿@using Movie.Domain.Entities.Enum
+@model List<ResultMovieDTO>
+
 @{
-    ViewData["Title"] = "MovieList";
+    ViewData["Title"] = "Film Listesi";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+
+    bool hasMovies = Model != null && Model.Any();
 }
 
-<h1>MovieList</h1>
+<style>
+    :root {
+        --primary: #6366f1;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --muted: #6b7280;
+        --bg-soft: #f8fafc;
+        --text-dark: #1f2937;
+        --radius: 12px;
+    }
+
+    .admin-card {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.04);
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .admin-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .admin-search {
+        position: relative;
+        max-width: 320px;
+        width: 100%;
+    }
+
+    .admin-search input {
+        width: 100%;
+        padding: 10px 14px 10px 40px;
+        border-radius: var(--radius);
+        border: 1px solid #e5e7eb;
+        background: var(--bg-soft);
+        outline: none;
+    }
+
+    .admin-search ion-icon {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 18px;
+    }
+
+    .btn-primary-soft {
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: var(--radius);
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        border: 0;
+        box-shadow: 0 10px 18px rgba(99,102,241,.18);
+    }
+
+    .movie-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .movie-table thead th {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
+
+    .movie-table tbody tr {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 10px rgba(0,0,0,.03);
+    }
+
+    .movie-table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        color: var(--text-dark);
+    }
+
+    .movie-id {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+    }
+
+    /* Cover */
+    .cover-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 260px;
+    }
+
+    .cover-thumb {
+        width: 44px;
+        height: 62px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid rgba(0,0,0,.06);
+        box-shadow: 0 8px 16px rgba(0,0,0,.06);
+        cursor: zoom-in;
+        background: #f3f4f6;
+    }
+
+    .cover-meta { display: flex; flex-direction: column; line-height: 1.2; }
+    .cover-title { font-weight: 900; color: var(--text-dark); }
+    .cover-sub { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+    /* Duration */
+    .duration-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-weight: 900;
+        font-size: 12px;
+        white-space: nowrap;
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    /* Rating */
+    .rating-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 150px;
+    }
+
+    .rating-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 13px;
+        color: #92400e;
+    }
+
+    .rating-top .rating-badge {
+        background: #fef3c7;
+        padding: 4px 10px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 900;
+    }
+
+    .rating-bar {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .rating-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+    }
+
+    .rating-low { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .rating-mid { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .rating-high { background: linear-gradient(90deg, #10b981, #22c55e); }
+
+    /* Status pill */
+    .status-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .status-instock { background: #ecfdf5; color: #065f46; }
+    .status-outofstock { background: #fee2e2; color: #991b1b; }
+    .status-comingsoon { background: #e0f2fe; color: #075985; }
+    .status-archived { background: #f3f4f6; color: #374151; }
+
+    /* Status select */
+    .status-select {
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-weight: 900;
+        font-size: 12px;
+        border: 1px solid rgba(0,0,0,.10);
+        background: #fff;
+        outline: none;
+        cursor: pointer;
+    }
+
+    /* Actions */
+    .action-btn {
+        padding: 8px 14px;
+        border-radius: var(--radius);
+        font-weight: 800;
+        font-size: 13px;
+        text-decoration: none;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        border: 0;
+        cursor: pointer;
+    }
+
+    .btn-delete { background: var(--danger); }
+    .btn-update { background: var(--success); }
+    .btn-detail { background: var(--warning); }
+
+    /* Empty state */
+    .empty-state {
+        border: 1px dashed #e5e7eb;
+        border-radius: 16px;
+        background: var(--bg-soft);
+        padding: 28px;
+        text-align: center;
+    }
+
+    .empty-state h4 {
+        margin: 0 0 6px;
+        font-weight: 950;
+        color: var(--text-dark);
+    }
+
+    .empty-state p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-weight: 700;
+    }
+
+    /* Lightbox */
+    .lightbox-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.65);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 9999;
+    }
+
+    .lightbox-backdrop.show { display: flex; }
+
+    .lightbox-card {
+        background: #111827;
+        border-radius: 18px;
+        padding: 16px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 24px 64px rgba(0,0,0,.35);
+    }
+
+    .lightbox-img {
+        width: 100%;
+        border-radius: 14px;
+        object-fit: contain;
+        max-height: 70vh;
+        background: #0b1220;
+    }
+
+    .lightbox-title {
+        margin-top: 10px;
+        color: #fff;
+        font-weight: 900;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .lightbox-close {
+        background: rgba(255,255,255,.12);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 900;
+    }
+
+    @@media (max-width: 768px) {
+        .movie-table thead { display: none; }
+        .movie-table tbody td { display: block; padding: 10px 12px; }
+        .movie-table tbody tr { padding: 10px 0; }
+        .rating-wrap { min-width: auto; }
+        .cover-cell { min-width: auto; }
+    }
+</style>
+
+<div class="admin-card">
+    <div class="admin-header">
+        <div class="admin-title">🎬 Film Listesi</div>
+
+        @if (hasMovies)
+        {
+            <div class="admin-search">
+                <ion-icon name="search-outline"></ion-icon>
+                <input id="movieSearch" type="text" placeholder="Film ara..." />
+            </div>
+        }
+
+        <a asp-area="Admin"
+           asp-controller="Movie"
+           asp-action="CreateMovie"
+           class="btn-primary-soft">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Yeni Film
+        </a>
+    </div>
+
+    @if (!hasMovies)
+    {
+        <div class="empty-state">
+            <h4>🎬 Henüz film verisi yok.</h4>
+            <p>İlk filmini eklemek için butona tıkla.</p>
+
+            <a asp-area="Admin"
+               asp-controller="Movie"
+               asp-action="CreateMovie"
+               class="btn-primary-soft">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                Film Ekle
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="movie-table" id="movieTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Film</th>
+                        <th>Rating</th>
+                        <th>Süre</th>
+                        <th>Yıl</th>
+                        <th>Durum</th>
+                        <th>Sil</th>
+                        <th>Güncelle</th>
+                        <th>Detay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        count++;
+
+                        // Cover fallback
+                        var cover = string.IsNullOrWhiteSpace(item.CoverImageUrl)
+                            ? "https://via.placeholder.com/300x450?text=No+Cover"
+                            : item.CoverImageUrl;
+
+                        // Duration: dk -> saat/dk
+                        int minutes = item.Duration;
+                        if (minutes < 0) { minutes = 0; }
+                        int h = minutes / 60;
+                        int m = minutes % 60;
+                        string durationText = h > 0 ? $"{h}s {m}dk" : $"{m}dk";
+
+                        // Release tooltip
+                        var releaseTooltip = item.ReleaseDate.ToString("dd.MM.yyyy");
+
+                        // Status mapping (Enum)
+                        string statusClass;
+                        string statusIcon;
+                        string statusTr;
+
+                        switch (item.MovieStatus)
+                        {
+                            case MovieStatus.InStock:
+                                statusClass = "status-instock";
+                                statusIcon = "checkmark-circle-outline";
+                                statusTr = "Stokta";
+                                break;
+
+                            case MovieStatus.NotInStock:
+                                statusClass = "status-outofstock";
+                                statusIcon = "close-circle-outline";
+                                statusTr = "Stokta Yok";
+                                break;
+
+                            case MovieStatus.ComingSoon:
+                                statusClass = "status-comingsoon";
+                                statusIcon = "time-outline";
+                                statusTr = "Yakında";
+                                break;
+
+                            case MovieStatus.Archived:
+                                statusClass = "status-archived";
+                                statusIcon = "archive-outline";
+                                statusTr = "Arşiv";
+                                break;
+
+                            default:
+                                statusClass = "status-archived";
+                                statusIcon = "help-circle-outline";
+                                statusTr = "Bilinmiyor";
+                                break;
+                        }
+
+                        // Rating + renk
+                        var rating = item.Rating;
+                        if (rating < 0) rating = 0;
+                        if (rating > 10) rating = 10;
+
+                        var ratingPercent = (int)Math.Round((double)(rating * 10m), 0);
+
+                        string ratingClass = "rating-mid";
+                        if (rating < 3m) ratingClass = "rating-low";
+                        else if (rating >= 7m) ratingClass = "rating-high";
+
+                        <tr>
+                            <td><div class="movie-id">@count</div></td>
+
+                            <td>
+                                <div class="cover-cell">
+                                    <img src="@cover"
+                                         class="cover-thumb js-cover"
+                                         data-title="@item.Title"
+                                         data-src="@cover"
+                                         onerror="this.src='https://via.placeholder.com/300x450?text=No+Cover';"
+                                         alt="@item.Title" />
+                                    <div class="cover-meta">
+                                        <span class="cover-title movie-title">@item.Title</span>
+                                        <span class="cover-sub">ID: @item.Id</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="rating-wrap">
+                                    <div class="rating-top">
+                                        <span class="rating-badge">⭐ @rating / 10</span>
+                                        <span>@ratingPercent%</span>
+                                    </div>
+                                    <div class="rating-bar">
+                                        <div class="rating-fill @ratingClass" style="width:@ratingPercent%"></div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="duration-pill" title="@item.Duration dk">
+                                    <ion-icon name="timer-outline"></ion-icon>
+                                    @durationText
+                                </span>
+                            </td>
+
+                            <td title="@releaseTooltip">@item.ReleaseDate.Year</td>
+
+                            <td>
+                                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                    <span class="status-pill @statusClass js-status-pill"
+                                          data-role="status-pill"
+                                          title="@item.MovieStatus">
+                                        <ion-icon name="@statusIcon"></ion-icon>
+                                        <span class="js-status-text">@statusTr</span>
+                                    </span>
+
+                                    <select class="status-select js-status"
+                                            data-id="@item.Id"
+                                            data-old="@((int)item.MovieStatus)">
+                                        <option value="1" selected="@(item.MovieStatus == MovieStatus.InStock)">Stokta</option>
+                                        <option value="2" selected="@(item.MovieStatus == MovieStatus.NotInStock)">Stokta Yok</option>
+                                        <option value="3" selected="@(item.MovieStatus == MovieStatus.ComingSoon)">Yakında</option>
+                                        <option value="4" selected="@(item.MovieStatus == MovieStatus.Archived)">Arşiv</option>
+                                    </select>
+                                </div>
+                            </td>
+
+                            <td>
+                                <form asp-area="Admin"
+                                      asp-controller="Movie"
+                                      asp-action="DeleteMovie"
+                                      method="post"
+                                      class="d-inline delete-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="button"
+                                            class="action-btn btn-delete js-delete"
+                                            data-title="@item.Title">
+                                        Sil
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td>
+                                <a asp-area="Admin"
+                                   asp-controller="Movie"
+                                   asp-action="UpdateMovie"
+                                   asp-route-id="@item.Id"
+                                   class="action-btn btn-update">
+                                    Güncelle
+                                </a>
+                            </td>
+
+                            <td>
+                                <a asp-area="Admin"
+                                   asp-controller="Movie"
+                                   asp-action="MovieDetail"
+                                   asp-route-id="@item.Id"
+                                   class="action-btn btn-detail">
+                                    Detay
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox-backdrop" id="lightbox">
+    <div class="lightbox-card">
+        <img id="lightboxImg" class="lightbox-img" src="" alt="cover" />
+        <div class="lightbox-title">
+            <span id="lightboxTitle"></span>
+            <button type="button" class="lightbox-close" id="lightboxClose">Kapat</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Search (Title üzerinden)
+        (function () {
+            const search = document.getElementById("movieSearch");
+            const table = document.getElementById("movieTable");
+            if (!search || !table) return;
+
+            search.addEventListener("input", function () {
+                const q = (this.value || "").toLowerCase();
+                const rows = table.querySelectorAll("tbody tr");
+
+                rows.forEach(r => {
+                    const titleEl = r.querySelector(".movie-title");
+                    const t = (titleEl ? titleEl.textContent : "").toLowerCase();
+                    r.style.display = t.includes(q) ? "" : "none";
+                });
+            });
+        })();
+
+        // Delete confirm -> POST form submit
+        (function () {
+            document.querySelectorAll(".js-delete").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const title = this.dataset.title || "Bu film";
+                    const form = this.closest("form");
+                    if (!form) return;
+
+                    Swal.fire({
+                        title: "Silmek istediğine emin misin?",
+                        html: `<b>${title}</b> silinecek. Bu işlem geri alınamaz.`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Evet, sil",
+                        cancelButtonText: "Vazgeç",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) form.submit();
+                    });
+                });
+            });
+        })();
+
+        // Lightbox
+        (function () {
+            const lb = document.getElementById("lightbox");
+            const lbImg = document.getElementById("lightboxImg");
+            const lbTitle = document.getElementById("lightboxTitle");
+            const lbClose = document.getElementById("lightboxClose");
+            if (!lb || !lbImg || !lbTitle || !lbClose) return;
+
+            document.querySelectorAll(".js-cover").forEach(img => {
+                img.addEventListener("click", function () {
+                    lbImg.src = this.dataset.src;
+                    lbTitle.textContent = this.dataset.title || "";
+                    lb.classList.add("show");
+                });
+            });
+
+            const close = () => lb.classList.remove("show");
+            lbClose.addEventListener("click", close);
+            lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+            document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+        })();
+
+        // Inline status change (Ajax) + Pill sync (optimistic UI)
+        (function () {
+            const selects = document.querySelectorAll(".js-status");
+            if (!selects.length) return;
+
+            const toast = (icon, title) => {
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true,
+                    icon,
+                    title
+                });
+            };
+
+            const statusMap = {
+                1: { cls: "status-instock",    icon: "checkmark-circle-outline", text: "Stokta" },
+                2: { cls: "status-outofstock", icon: "close-circle-outline",     text: "Stokta Yok" },
+                3: { cls: "status-comingsoon", icon: "time-outline",             text: "Yakında" },
+                4: { cls: "status-archived",   icon: "archive-outline",          text: "Arşiv" }
+            };
+
+            const applyPill = (pill, statusInt) => {
+                const cfg = statusMap[statusInt] || { cls: "status-archived", icon: "help-circle-outline", text: "Bilinmiyor" };
+
+                pill.classList.remove("status-instock", "status-outofstock", "status-comingsoon", "status-archived");
+                pill.classList.add(cfg.cls);
+
+                const iconEl = pill.querySelector("ion-icon");
+                if (iconEl) iconEl.setAttribute("name", cfg.icon);
+
+                const textEl = pill.querySelector(".js-status-text");
+                if (textEl) textEl.textContent = cfg.text;
+
+                pill.setAttribute("title", cfg.text);
+            };
+
+            const getAntiForgeryToken = () => {
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                return tokenInput ? tokenInput.value : null;
+            };
+
+            selects.forEach(sel => {
+                sel.addEventListener("change", async function () {
+                    const tr = this.closest("tr");
+                    const pill = tr ? tr.querySelector('[data-role="status-pill"]') : null;
+
+                    const id = parseInt(this.dataset.id);
+                    const oldVal = parseInt(this.dataset.old);
+                    const newVal = parseInt(this.value);
+
+                    // 1) UI'ı anında güncelle
+                    if (pill) applyPill(pill, newVal);
+
+                    this.disabled = true;
+
+                    try {
+                        const token = getAntiForgeryToken();
+
+                        const res = await fetch("/Admin/Movie/UpdateStatus", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                ...(token ? { "RequestVerificationToken": token } : {})
+                            },
+                            body: JSON.stringify({
+                                id: id,
+                                movieStatus: newVal
+                            })
+                        });
+
+                        if (!res.ok) throw new Error("Status update failed");
+
+                        this.dataset.old = newVal;
+                        toast("success", "✅ Durum güncellendi.");
+                    } catch (e) {
+                        // 2) başarısızsa eskiye dön
+                        this.value = oldVal;
+                        if (pill) applyPill(pill, oldVal);
+                        toast("error", "❌ Durum güncellenemedi.");
+                    } finally {
+                        this.disabled = false;
+                    }
+                });
+            });
+        })();
+
+        // TempData Toast (istersen layout'a al)
+        (function () {
+            const msg = "@(TempData["ToastMessage"] ?? "")";
+            if (!msg) return;
+
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                icon: "@(TempData["ToastType"] ?? "success")",
+                title: msg
+            });
+        })();
+    </script>
+}
 
