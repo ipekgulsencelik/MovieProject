@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Movie.Domain.Entities;
+using Movie.Persistence.Configurations;
 
 namespace Movie.Persistence.Context
 {
@@ -15,5 +16,14 @@ namespace Movie.Persistence.Context
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Cast> Casts { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new FilmConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ReviewConfiguration()); 
+        }
     }
 }
