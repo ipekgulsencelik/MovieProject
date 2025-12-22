@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Movie.Application.Features.CQRS.Commands;
 using Movie.Application.Features.CQRS.Commands.CategoryCommands;
 using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Queries.CategoryQueries;
@@ -13,25 +14,46 @@ namespace Movie.WebAPI.Controllers
         private readonly GetCategoryByIdQueryHandler _getCategoryByIdQueryHandler;
         private readonly GetCategoryQueryHandler _getCategoryQueryHandler;
         private readonly UpdateCategoryCommandHandler _updateCategoryCommandHandler;
+
         private readonly ToggleCategoryStatusCommandHandler _toggleCategoryStatusCommandHandler;
         private readonly ShowCategoryCommandHandler _showCategoryCommandHandler;
         private readonly HideCategoryCommandHandler _hideCategoryCommandHandler;
+
         private readonly RemoveCategoryCommandHandler _removeCategoryCommandHandler;
+
+        private readonly ArchiveCategoryCommandHandler _archiveCategoryCommandHandler;
+        private readonly UnarchiveCategoryCommandHandler _unarchiveCategoryCommandHandler;
+        private readonly SoftDeleteCategoryCommandHandler _softDeleteCategoryCommandHandler;
+        private readonly HardDeleteCategoryCommandHandler _hardDeleteCategoryCommandHandler;
+
         private readonly GetActiveCategoriesQueryHandler _getActiveCategoriesQueryHandler;
         private readonly GetVisibleCategoriesQueryHandler _getVisibleCategoriesQueryHandler;
+        private readonly ApproveCategoryCommandHandler _approveCategoryCommandHandler;
 
-        public CategoriesController(CreateCategoryCommandHandler createCategoryCommandHandler, GetCategoryByIdQueryHandler getCategoryByIdQueryHandler, GetCategoryQueryHandler getCategoryQueryHandler, UpdateCategoryCommandHandler updateCategoryCommandHandler, RemoveCategoryCommandHandler removeCategoryCommandHandler, ToggleCategoryStatusCommandHandler toggleCategoryStatusCommandHandler, HideCategoryCommandHandler hideCategoryCommandHandler, ShowCategoryCommandHandler showCategoryCommandHandler, GetVisibleCategoriesQueryHandler getVisibleCategoriesQueryHandler, GetActiveCategoriesQueryHandler getActiveCategoriesQueryHandler)
+        public CategoriesController(CreateCategoryCommandHandler createCategoryCommandHandler, GetCategoryByIdQueryHandler getCategoryByIdQueryHandler, GetCategoryQueryHandler getCategoryQueryHandler, UpdateCategoryCommandHandler updateCategoryCommandHandler, RemoveCategoryCommandHandler removeCategoryCommandHandler, ToggleCategoryStatusCommandHandler toggleCategoryStatusCommandHandler, HideCategoryCommandHandler hideCategoryCommandHandler, ShowCategoryCommandHandler showCategoryCommandHandler, GetVisibleCategoriesQueryHandler getVisibleCategoriesQueryHandler, GetActiveCategoriesQueryHandler getActiveCategoriesQueryHandler,
+            ArchiveCategoryCommandHandler archiveCategoryCommandHandler,
+            UnarchiveCategoryCommandHandler unarchiveCategoryCommandHandler,
+            SoftDeleteCategoryCommandHandler softDeleteCategoryCommandHandler,
+            HardDeleteCategoryCommandHandler hardDeleteCategoryCommandHandler, ApproveCategoryCommandHandler approveCategoryCommandHandler)
         {
             _createCategoryCommandHandler = createCategoryCommandHandler;
             _getCategoryByIdQueryHandler = getCategoryByIdQueryHandler;
             _getCategoryQueryHandler = getCategoryQueryHandler;
             _updateCategoryCommandHandler = updateCategoryCommandHandler;
+
             _removeCategoryCommandHandler = removeCategoryCommandHandler;
             _showCategoryCommandHandler = showCategoryCommandHandler;
             _hideCategoryCommandHandler = hideCategoryCommandHandler;
             _toggleCategoryStatusCommandHandler = toggleCategoryStatusCommandHandler;
+
             _getActiveCategoriesQueryHandler = getActiveCategoriesQueryHandler;
             _getVisibleCategoriesQueryHandler = getVisibleCategoriesQueryHandler;
+
+            _archiveCategoryCommandHandler = archiveCategoryCommandHandler;
+            _unarchiveCategoryCommandHandler = unarchiveCategoryCommandHandler;
+            _softDeleteCategoryCommandHandler = softDeleteCategoryCommandHandler;
+            _hardDeleteCategoryCommandHandler = hardDeleteCategoryCommandHandler;
+            _approveCategoryCommandHandler = approveCategoryCommandHandler;
         }
 
         [HttpGet]
@@ -62,11 +84,46 @@ namespace Movie.WebAPI.Controllers
             return Ok("Kategori Bilgisi Eklendi");
         }
 
-        [HttpDelete]
+        [HttpPatch("approve/{id}")]
+        public async Task<IActionResult> ApproveCategory(int id)
+        {
+            await _approveCategoryCommandHandler.Handle(new ApproveCategoryCommand(id));
+            return Ok("Kategori onaylandı.");
+        }
+
+        [HttpPatch("archive/{id}")]
+        public async Task<IActionResult> Archive(int id)
+        {
+            await _archiveCategoryCommandHandler.Handle(new ArchiveCategoryCommand(id));
+            return Ok("Kategori arşivlendi.");
+        }
+
+        [HttpPatch("unarchive/{id}")]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            await _unarchiveCategoryCommandHandler.Handle(new UnarchiveCategoryCommand(id));
+            return Ok("Kategori arşivden çıkarıldı.");
+        }
+
+        [HttpDelete("soft/{id}")]
+        public async Task<IActionResult> SoftDelete(int id)
+        {
+            await _softDeleteCategoryCommandHandler.Handle(new SoftDeleteCategoryCommand(id));
+            return Ok("Kategori çöp kutusuna taşındı (soft delete).");
+        }
+
+        [HttpDelete("hard/{id}")]
+        public async Task<IActionResult> HardDelete(int id)
+        {
+            await _hardDeleteCategoryCommandHandler.Handle(new HardDeleteCategoryCommand(id));
+            return Ok("Kategori kalıcı olarak silindi.");
+        }
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             await _removeCategoryCommandHandler.Handle(new RemoveCategoryCommand(id));
-            return Ok("Silme işlemi başarılı!");
+            return Ok("Kalıcı silme başarılı!");
         }
 
         [HttpPatch("show/{id}")]

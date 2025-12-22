@@ -7,6 +7,8 @@
 
     int count = 0;
     bool hasCategories = Model != null && Model.Any();
+
+    var updateStatusUrl = Url.Action("UpdateStatus", "Category", new { area = "Admin" });
 }
 
 <style>
@@ -159,7 +161,6 @@
         text-decoration: none;
     }
 
-        /* Arrow on hover */
         .stat-link::after {
             content: "→";
             opacity: 0;
@@ -174,7 +175,6 @@
             transform: translateX(2px);
         }
 
-        /* Mini tooltip */
         .stat-link[data-tip]::before {
             content: attr(data-tip);
             position: absolute;
@@ -216,10 +216,6 @@
         transform: scale(1.06);
         filter: brightness(0.95);
         box-shadow: 0 10px 18px rgba(0,0,0,.12);
-    }
-
-    .stat-link:hover ion-icon {
-        filter: saturate(1.2);
     }
 
     .badge-movies {
@@ -336,6 +332,11 @@
         color: #374151;
     }
 
+    .status-pending {
+        background: #fffbeb;
+        color: #92400e;
+    }
+
     .status-select {
         border-radius: 999px;
         padding: 8px 12px;
@@ -346,6 +347,12 @@
         outline: none;
         cursor: pointer;
     }
+
+        .status-select:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+            background: #f9fafb;
+        }
 
     /* Actions */
     .action-btn {
@@ -363,12 +370,32 @@
         cursor: pointer;
     }
 
-    .btn-delete {
-        background: var(--danger);
-    }
-
     .btn-update {
         background: var(--success);
+    }
+
+    .btn-archive {
+        background: var(--warning);
+        color: #111827 !important;
+    }
+
+    .btn-restore {
+        background: #0ea5e9;
+        color: #fff !important;
+    }
+
+    .btn-harddelete {
+        background: #7f1d1d;
+        color: #fff !important;
+    }
+
+    /* Approve / Reject */
+    .btn-approve {
+        background: var(--primary);
+    }
+
+    .btn-reject {
+        background: var(--danger);
     }
 
     /* Empty */
@@ -423,9 +450,23 @@
 
         @if (hasCategories)
         {
-            <div class="admin-search">
-                <ion-icon name="search-outline"></ion-icon>
-                <input id="catSearch" type="text" placeholder="Kategori ara..." />
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <div class="admin-search">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input id="catSearch" type="text" placeholder="Kategori ara..." />
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:900; color:var(--text-dark); cursor:pointer;">
+                        <input id="showArchivedToggle" type="checkbox" style="width:18px; height:18px;" />
+                        Arşivdekileri Göster
+                    </label>
+
+                    <span id="archivedHint" class="count-pill" style="display:none;">
+                        <ion-icon name="archive-outline"></ion-icon>
+                        Arşivler görünür
+                    </span>
+                </div>
             </div>
         }
 
@@ -478,9 +519,18 @@
                         count++;
 
                         // Status mapping
-                        string statusClass, statusIcon, statusTr;
+                        string statusClass = "status-archived";
+                        string statusIcon = "archive-outline";
+                        string statusTr = "Arşiv";
+
                         switch (item.CategoryStatus)
                         {
+                            case CategoryStatus.Pending:
+                                statusClass = "status-pending";
+                                statusIcon = "time-outline";
+                                statusTr = "Onay Bekliyor";
+                                break;
+
                             case CategoryStatus.Active:
                                 statusClass = "status-active";
                                 statusIcon = "checkmark-circle-outline";
@@ -513,13 +563,24 @@
                         if (avg < 0) avg = 0;
                         if (avg > 10) avg = 10;
 
+                        bool hasRating = item.ReviewCount > 0;
                         var avgPercent = (int)Math.Round(avg * 10, 0);
 
                         string ratingClass = "rating-mid";
-                        if (avg < 3) ratingClass = "rating-low";
-                        else if (avg >= 7) ratingClass = "rating-high";
+                        if (!hasRating)
+                        {
+                            ratingClass = "rating-empty";
+                        }
+                        else if (avg < 3)
+                        {
+                            ratingClass = "rating-low";
+                        }
+                        else if (avg >= 7)
+                        {
+                            ratingClass = "rating-high";
+                        }
 
-                        <tr class="@rowClass" data-cat-id="@item.Id">
+                        <tr class="@rowClass" data-archived="@(item.CategoryStatus == CategoryStatus.Archived ? "1" : "0")">
                             <td><div class="row-id">@count</div></td>
 
                             <td><span class="cat-name">@item.Name</span></td>
@@ -530,7 +591,7 @@
 
                             <td><strong>@item.DisplayOrder</strong></td>
 
-                            <!-- 🎬 Filmler (clickable if > 0) -->
+                            <!-- 🎬 Filmler -->
                             <td>
                                 @if (item.MovieCount > 0)
                                 {
@@ -538,26 +599,23 @@
                                        data-tip="Filmleri görüntüle"
                                        asp-area="Admin"
                                        asp-controller="Movie"
-                                       asp-action="MovieListAsync"
+                                       asp-action="MovieList"
                                        asp-route-categoryId="@item.Id">
                                         <span class="stat-badge badge-movies">
-                                            <ion-icon name="film"></ion-icon>
+                                            <ion-icon name="film-outline"></ion-icon>
                                             @item.MovieCount
                                         </span>
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="stat-disabled" title="Bu kategoride film yok">
-                                        <span class="stat-badge badge-movies">
-                                            <ion-icon name="film"></ion-icon>
-                                            0
-                                        </span>
+                                    <span class="stat-badge badge-movies stat-disabled" title="Film yok">
+                                        <ion-icon name="film-outline"></ion-icon> 0
                                     </span>
                                 }
                             </td>
 
-                            <!-- 💬 Yorumlar (clickable if > 0) -->
+                            <!-- 💬 Yorumlar -->
                             <td>
                                 @if (item.ReviewCount > 0)
                                 {
@@ -568,25 +626,22 @@
                                        asp-action="ReviewList"
                                        asp-route-categoryId="@item.Id">
                                         <span class="stat-badge badge-reviews">
-                                            <ion-icon name="chatbubble-ellipses"></ion-icon>
+                                            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
                                             @item.ReviewCount
                                         </span>
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="stat-disabled" title="Bu kategoride yorum yok">
-                                        <span class="stat-badge badge-reviews">
-                                            <ion-icon name="chatbubble-ellipses"></ion-icon>
-                                            0
-                                        </span>
+                                    <span class="stat-badge badge-reviews stat-disabled" title="Yorum yok">
+                                        <ion-icon name="chatbubble-ellipses-outline"></ion-icon> 0
                                     </span>
                                 }
                             </td>
 
                             <!-- ⭐ Ortalama -->
                             <td>
-                                @if (item.ReviewCount <= 0)
+                                @if (!hasRating)
                                 {
                                     <span class="no-rating" title="Henüz yorum olmadığı için puan hesaplanmadı">
                                         <ion-icon name="star-outline"></ion-icon>
@@ -610,7 +665,7 @@
                                 }
                             </td>
 
-                            <!-- Durum (inline change) -->
+                            <!-- Durum -->
                             <td>
                                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                                     <span class="status-pill @statusClass" data-role="status-pill" title="@item.CategoryStatus">
@@ -620,29 +675,97 @@
 
                                     <select class="status-select js-status"
                                             data-id="@item.Id"
-                                            data-old="@((int)item.CategoryStatus)">
-                                        <option value="1" selected="@(item.CategoryStatus == CategoryStatus.Active)">Aktif</option>
-                                        <option value="2" selected="@(item.CategoryStatus == CategoryStatus.Passive)">Pasif</option>
-                                        <option value="3" selected="@(item.CategoryStatus == CategoryStatus.Archived)">Arşiv</option>
+                                            data-old="@((int)item.CategoryStatus)"
+                                    @(item.CategoryStatus == CategoryStatus.Pending ? "disabled" : "")>
+                                        <option value="@((int)CategoryStatus.Pending)" selected="@(item.CategoryStatus == CategoryStatus.Pending)">Onay Bekliyor</option>
+                                        <option value="@((int)CategoryStatus.Active)" selected="@(item.CategoryStatus == CategoryStatus.Active)">Aktif</option>
+                                        <option value="@((int)CategoryStatus.Passive)" selected="@(item.CategoryStatus == CategoryStatus.Passive)">Pasif</option>
+                                        <option value="@((int)CategoryStatus.Archived)" selected="@(item.CategoryStatus == CategoryStatus.Archived)">Arşiv</option>
                                     </select>
                                 </div>
                             </td>
 
                             <!-- Sil -->
                             <td>
-                                <form asp-area="Admin"
-                                      asp-controller="Category"
-                                      asp-action="DeleteCategory"
-                                      method="post"
-                                      class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <button type="button"
-                                            class="action-btn btn-delete js-delete"
-                                            data-title="@item.Name">
-                                        Sil
-                                    </button>
-                                </form>
+                                <div data-role="actions" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                    <!-- Not archived => actions -->
+                                    <div data-role="actions-not-archived" style="@(item.CategoryStatus == CategoryStatus.Archived ? "display:none;" : "")">
+
+                                        @* ✅ Pending aksiyonları *@
+                                        @if (item.CategoryStatus == CategoryStatus.Pending)
+                                        {
+                                            <button type="button"
+                                                    class="action-btn btn-approve js-approve"
+                                                    data-id="@item.Id"
+                                                    data-title="@item.Name">
+                                                <ion-icon name="checkmark-done-outline"></ion-icon>
+                                                Onayla
+                                            </button>
+
+                                            <button type="button"
+                                                    class="action-btn btn-reject js-reject"
+                                                    data-id="@item.Id"
+                                                    data-title="@item.Name">
+                                                <ion-icon name="close-circle-outline"></ion-icon>
+                                                Reddet
+                                            </button>
+                                        }
+
+                                        @* ✅ Pending değilse Arşivle göster *@
+                                        @if (item.CategoryStatus != CategoryStatus.Pending)
+                                        {
+                                            <form asp-area="Admin"
+                                                  asp-controller="Category"
+                                                  asp-action="ArchiveCategory"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="button"
+                                                        class="action-btn btn-archive js-archive"
+                                                        data-title="@item.Name">
+                                                    <ion-icon name="archive-outline"></ion-icon>
+                                                    Arşivle
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+
+                                    <!-- Archived => Restore + HardDelete -->
+                                    <div data-role="actions-archived" style="@(item.CategoryStatus == CategoryStatus.Archived ? "" : "display:none;")">
+                                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                            <form asp-area="Admin"
+                                                  asp-controller="Category"
+                                                  asp-action="UnarchiveCategory"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="button"
+                                                        class="action-btn btn-restore js-restore"
+                                                        data-title="@item.Name">
+                                                    <ion-icon name="refresh-outline"></ion-icon>
+                                                    Geri Al
+                                                </button>
+                                            </form>
+
+                                            <form asp-area="Admin"
+                                                  asp-controller="Category"
+                                                  asp-action="HardDeleteCategory"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="button"
+                                                        class="action-btn btn-harddelete js-harddelete"
+                                                        data-title="@item.Name">
+                                                    <ion-icon name="trash-outline"></ion-icon>
+                                                    Kalıcı Sil
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
 
                             <!-- Güncelle -->
@@ -652,6 +775,7 @@
                                    asp-action="UpdateCategory"
                                    asp-route-id="@item.Id"
                                    class="action-btn btn-update">
+                                    <ion-icon name="create-outline"></ion-icon>
                                     Güncelle
                                 </a>
                             </td>
@@ -663,12 +787,65 @@
     }
 </div>
 
+<script>
+    (function () {
+        const toggle = document.getElementById("showArchivedToggle");
+        const hint = document.getElementById("archivedHint");
+        const table = document.getElementById("catTable");
+        const search = document.getElementById("catSearch");
+
+        if (!toggle || !table) return;
+
+        function rowMatchesSearch(row, q) {
+            if (!q) return true;
+            const nameEl = row.querySelector(".cat-name");
+            const t = (nameEl ? nameEl.textContent : "").toLowerCase();
+            return t.includes(q);
+        }
+
+        function applyFilters() {
+            const showArchived = toggle.checked;
+            const q = (search ? (search.value || "").toLowerCase() : "");
+
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach(r => {
+                const isArchived = r.getAttribute("data-archived") === "1";
+
+                // Arşiv filtresi
+                if (!showArchived && isArchived) {
+                    r.style.display = "none";
+                    return;
+                }
+
+                // Search filtresi
+                r.style.display = rowMatchesSearch(r, q) ? "" : "none";
+            });
+
+            if (hint) hint.style.display = showArchived ? "inline-flex" : "none";
+        }
+
+        // ✅ Default: arşivler gizli
+        toggle.checked = false;
+        applyFilters();
+
+        toggle.addEventListener("change", applyFilters);
+
+        // Search ile entegre çalışsın
+        if (search) search.addEventListener("input", applyFilters);
+
+        // ✅ dışarıdan çağırabilelim (status değişince tekrar uygulatacağız)
+        window.applyCategoryFilters = applyFilters;
+    })();
+</script>
+
 @section Scripts {
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        const updateStatusUrl = "@updateStatusUrl";
+
         const toast = (icon, title) => {
             Swal.fire({
                 toast: true,
@@ -686,38 +863,20 @@
             return tokenInput ? tokenInput.value : null;
         };
 
-        // Search (Name)
-        (function () {
-            const search = document.getElementById("catSearch");
-            const table = document.getElementById("catTable");
-            if (!search || !table) return;
-
-            search.addEventListener("input", function () {
-                const q = (this.value || "").toLowerCase();
-                const rows = table.querySelectorAll("tbody tr");
-
-                rows.forEach(r => {
-                    const nameEl = r.querySelector(".cat-name");
-                    const t = (nameEl ? nameEl.textContent : "").toLowerCase();
-                    r.style.display = t.includes(q) ? "" : "none";
-                });
-            });
-        })();
-
-        // Delete confirm
-        (function () {
-            document.querySelectorAll(".js-delete").forEach(btn => {
+        // Confirm helpers
+        const confirmAndSubmit = (btnSelector, titleText, html, icon, confirmText) => {
+            document.querySelectorAll(btnSelector).forEach(btn => {
                 btn.addEventListener("click", function () {
-                    const title = this.dataset.title || "Bu kategori";
+                    const title = this.dataset.title || titleText;
                     const form = this.closest("form");
                     if (!form) return;
 
                     Swal.fire({
-                        title: "Silmek istediğine emin misin?",
-                        html: `<b>${title}</b> silinecek. Bu işlem geri alınamaz.`,
-                        icon: "warning",
+                        title: titleText,
+                        html: html.replace("{title}", `<b>${title}</b>`),
+                        icon: icon,
                         showCancelButton: true,
-                        confirmButtonText: "Evet, sil",
+                        confirmButtonText: confirmText,
                         cancelButtonText: "Vazgeç",
                         reverseButtons: true
                     }).then((result) => {
@@ -725,23 +884,36 @@
                     });
                 });
             });
-        })();
+        };
 
-        // Inline STATUS update (Ajax) + optimistic UI
+        confirmAndSubmit(".js-archive", "Arşivlemek istediğine emin misin?",
+            "{title} arşivlenecek. Listelerde görünmeyebilir.",
+            "warning", "Evet, arşivle");
+
+        confirmAndSubmit(".js-restore", "Geri almak istiyor musun?",
+            "{title} tekrar aktif olacak.",
+            "question", "Evet, geri al");
+
+        confirmAndSubmit(".js-harddelete", "Kalıcı olarak silinsin mi?",
+            "{title} kalıcı olarak silinecek. Bu işlem geri alınamaz!",
+            "error", "Evet, kalıcı sil");
+
+        // Inline STATUS update (Ajax) + optimistic UI + rollback
         (function () {
             const selects = document.querySelectorAll(".js-status");
             if (!selects.length) return;
 
             const statusMap = {
-                1: { cls: "status-active",   icon: "checkmark-circle-outline", text: "Aktif", archived: false },
-                2: { cls: "status-passive",  icon: "close-circle-outline",     text: "Pasif", archived: false },
-                3: { cls: "status-archived", icon: "archive-outline",          text: "Arşiv", archived: true  }
+        @((int)CategoryStatus.Pending):  { cls: "status-pending",  icon: "time-outline",              text: "Onay Bekliyor", archived: false, pending: true  },
+        @((int)CategoryStatus.Active):   { cls: "status-active",   icon: "checkmark-circle-outline",  text: "Aktif",          archived: false, pending: false },
+        @((int)CategoryStatus.Passive):  { cls: "status-passive",  icon: "close-circle-outline",      text: "Pasif",          archived: false, pending: false },
+        @((int)CategoryStatus.Archived): { cls: "status-archived", icon: "archive-outline",           text: "Arşiv",          archived: true,  pending: false }
             };
 
             const applyStatus = (tr, pill, statusInt) => {
-                const cfg = statusMap[statusInt] || { cls: "status-archived", icon: "help-circle-outline", text: "Bilinmiyor", archived: false };
+                const cfg = statusMap[statusInt] || { cls: "status-archived", icon: "help-circle-outline", text: "Bilinmiyor", archived: false, pending: false };
 
-                pill.classList.remove("status-active", "status-passive", "status-archived");
+                pill.classList.remove("status-active", "status-passive", "status-archived", "status-pending");
                 pill.classList.add(cfg.cls);
 
                 const iconEl = pill.querySelector("ion-icon");
@@ -750,9 +922,116 @@
                 const textEl = pill.querySelector(".js-status-text");
                 if (textEl) textEl.textContent = cfg.text;
 
+                // Archived row UI
                 tr.classList.toggle("row-archived", !!cfg.archived);
+
+                // Archived state sync (toggle filtresi ve UI için)
+                tr.setAttribute("data-archived", cfg.archived ? "1" : "0");
+
+                // Action buttons live toggle (archive/restore)
+                const notArchivedBox = tr.querySelector('[data-role="actions-not-archived"]');
+                const archivedBox = tr.querySelector('[data-role="actions-archived"]');
+
+                if (notArchivedBox) notArchivedBox.style.display = cfg.archived ? "none" : "";
+                if (archivedBox) archivedBox.style.display = cfg.archived ? "" : "none";
+
+                // Pending action buttons toggle
+                const approveBtn = tr.querySelector(".js-approve");
+                const rejectBtn = tr.querySelector(".js-reject");
+                if (approveBtn) approveBtn.style.display = (statusInt === @((int)CategoryStatus.Pending)) ? "" : "none";
+                if (rejectBtn) rejectBtn.style.display = (statusInt === @((int)CategoryStatus.Pending)) ? "" : "none";
+
+                // Pending ise select kilitli, değilse açık
+                const sel = tr.querySelector(".js-status");
+                if (sel) sel.disabled = (statusInt === @((int)CategoryStatus.Pending));
             };
 
+            const postStatus = async (id, statusInt) => {
+                const token = getAntiForgeryToken();
+
+                const res = await fetch(updateStatusUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(token ? { "RequestVerificationToken": token } : {})
+                    },
+                    body: JSON.stringify({ id: id, categoryStatus: statusInt })
+                });
+
+                if (!res.ok) throw new Error("Update failed");
+            };
+
+            const bindPendingAction = (selector, targetStatusInt, confirmTitle, confirmHtml, successToast) => {
+                document.querySelectorAll(selector).forEach(btn => {
+                    btn.addEventListener("click", async function () {
+                        const id = parseInt(this.dataset.id);
+                        const title = this.dataset.title || "Kategori";
+
+                        const tr = this.closest("tr");
+                        const pill = tr ? tr.querySelector('[data-role="status-pill"]') : null;
+                        const sel = tr ? tr.querySelector(".js-status") : null;
+
+                        if (!tr || !pill || !sel) return;
+
+                        const oldVal = parseInt(sel.dataset.old || sel.value || "0");
+
+                        const ask = await Swal.fire({
+                            title: confirmTitle,
+                            html: confirmHtml.replace("{title}", `<b>${title}</b>`),
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Evet",
+                            cancelButtonText: "Vazgeç",
+                            reverseButtons: true
+                        });
+
+                        if (!ask.isConfirmed) return;
+
+                        // Optimistic UI
+                        applyStatus(tr, pill, targetStatusInt);
+                        sel.value = String(targetStatusInt);
+                        sel.disabled = false;
+
+                        this.disabled = true;
+
+                        try {
+                            await postStatus(id, targetStatusInt);
+
+                            sel.dataset.old = String(targetStatusInt);
+                            toast("success", successToast);
+                        } catch (e) {
+                            // Rollback
+                            sel.value = String(oldVal);
+                            applyStatus(tr, pill, oldVal);
+                            toast("error", "❌ İşlem başarısız.");
+                            console.error(e);
+                        } finally {
+                            this.disabled = false;
+                            if (window.applyCategoryFilters) window.applyCategoryFilters();
+                        }
+                    });
+                });
+            };
+
+            // Approve: Pending -> Active
+            bindPendingAction(
+                ".js-approve",
+        @((int)CategoryStatus.Active),
+                "Onayla?",
+                "{title} kategorisi aktif edilecek.",
+                "✅ Kategori onaylandı (Aktif)."
+            );
+
+            // Reject: Pending -> Passive
+            bindPendingAction(
+                ".js-reject",
+        @((int)CategoryStatus.Passive),
+                "Reddet?",
+                "{title} kategorisi pasif duruma alınacak.",
+                "✅ Kategori reddedildi (Pasif)."
+            );
+
+            // Dropdown change handler (non-pending)
             selects.forEach(sel => {
                 sel.addEventListener("change", async function () {
                     const tr = this.closest("tr");
@@ -767,18 +1046,7 @@
                     this.disabled = true;
 
                     try {
-                        const token = getAntiForgeryToken();
-
-                        const res = await fetch("/Admin/Category/UpdateStatus", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                ...(token ? { "RequestVerificationToken": token } : {})
-                            },
-                            body: JSON.stringify({ id: id, categoryStatus: newVal })
-                        });
-
-                        if (!res.ok) throw new Error("Update failed");
+                        await postStatus(id, newVal);
 
                         this.dataset.old = newVal;
                         toast("success", "✅ Durum güncellendi.");
@@ -786,8 +1054,12 @@
                         this.value = oldVal;
                         applyStatus(tr, pill, oldVal);
                         toast("error", "❌ Durum güncellenemedi.");
+                        console.error(e);
                     } finally {
                         this.disabled = false;
+
+                        // toggle kapalıysa Archived seçince satır anında gizlensin
+                        if (window.applyCategoryFilters) window.applyCategoryFilters();
                     }
                 });
             });

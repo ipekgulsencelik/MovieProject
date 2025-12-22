@@ -1,21 +1,32 @@
-﻿using System.Linq.Expressions;
+﻿using Movie.Domain.Entities.Abstract;
+using System.Linq.Expressions;
 
 namespace Movie.Application.Interfaces
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : BaseEntity
     {
-        Task<List<T>> GetListAsync();  // Tüm öğeleri al
-        Task<List<T>> GetActiveAsync();  // Sadece aktif öğeleri al
-        Task<List<T>> GetVisibleAsync();  // Sadece görünür öğeleri al
-        Task<List<T>> GetListByFilterAsync(Expression<Func<T, bool>> predicate); 
-        Task<T> GetByIdAsync(int id);
+        Task<List<T>> GetListAsync();                     // Deleted hariç (standart liste)
+        Task<List<T>> GetActiveAsync();                   // Deleted hariç + IsActive = true
+        Task<List<T>> GetVisibleAsync();                  // Deleted hariç + IsActive = true + IsVisible = true
+
+        Task<T> GetByIdAsync(int id);                     // Deleted hariç
+        Task<T?> GetByIdIncludingDeletedAsync(int id);    // Deleted dahil
+
+        Task<T?> GetByFilterAsync(Expression<Func<T, bool>> predicate);
+        Task<List<T>> GetListByFilterAsync(Expression<Func<T, bool>> predicate);
+
         Task CreateAsync(T entity);
         Task UpdateAsync(T entity);
-        Task DeleteAsync(int id); // soft delete
-        Task ShowAsync(int id);   // IsVisible = true
-        Task HideAsync(int id);   // IsVisible = false
-        Task ToggleStatusAsync(int id);
+
+        Task DeleteAsync(int id);                         // Soft delete (DataStatus=Deleted)
+        Task RemoveAsync(T entity);                       // Hard delete (Remove)
+
+        Task ShowAsync(int id);                           // IsVisible = true
+        Task HideAsync(int id);                           // IsVisible = false
+        Task ToggleStatusAsync(int id);                   // IsActive toggle
+
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, bool includeDeleted = true);
+
         Task<bool> SaveChangesAsync();
-        Task<T> GetByFilterAsync(Expression<Func<T, bool>> predicate);
     }
 }

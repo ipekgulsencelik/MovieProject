@@ -41,6 +41,11 @@ builder.Services.AddScoped<HideCategoryCommandHandler>();
 builder.Services.AddScoped<ShowCategoryCommandHandler>();
 builder.Services.AddScoped<UpdateCategoryCommandHandler>();
 builder.Services.AddScoped<ToggleCategoryStatusCommandHandler>();
+builder.Services.AddScoped<ArchiveCategoryCommandHandler>();
+builder.Services.AddScoped<UnarchiveCategoryCommandHandler>();
+builder.Services.AddScoped<SoftDeleteCategoryCommandHandler>();
+builder.Services.AddScoped<HardDeleteCategoryCommandHandler>();
+builder.Services.AddScoped<ApproveCategoryCommandHandler>();
 
 builder.Services.AddScoped<GetMovieQueryHandler>();
 builder.Services.AddScoped<GetActiveMoviesQueryHandler>();

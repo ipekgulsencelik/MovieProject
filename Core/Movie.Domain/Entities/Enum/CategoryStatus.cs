@@ -2,9 +2,9 @@
 {
     public enum CategoryStatus
     {
-        Unknown = 0,
-        Active = 1,
-        Passive = 2,
-        Archived = 3
+        Pending = 0,   // ⏳ Onay Bekliyor
+        Active = 1,    // ✅ Yayında
+        Passive = 2,   // ⛔ Gizli
+        Archived = 3   // 🗄️ Arşiv
     }
 }
