@@ -13,12 +13,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\ApproveSeriesCommandHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\ArchiveSeriesCommandHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\CreateSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetArchivedSeriesQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetDeletedSeriesQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetPendingSeriesQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetPublishedSeriesQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetSeriesByCategoryQueryHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetSeriesByIdQueryHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetSeriesQueryHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\HardDeleteSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\RejectSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\RestoreSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\SearchSeriesQueryHandler.cs" />
     <Compile Include="Features\CQRS\Handlers\SeriesHandlers\SoftDeleteSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\ToggleSeriesVisibilityCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\UnarchiveSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\UpdateSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\UpdateSeriesStatusCommandHandler.cs" />
   </ItemGroup>
 
   <ItemGroup>

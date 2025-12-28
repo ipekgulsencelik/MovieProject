@@ -9,6 +9,7 @@ using Movie.Application.Validators;
 using Movie.Domain.Entities;
 using Movie.Persistence.Context;
 using Movie.Persistence.Repositories;
+using Movie.WebAPI.Extensions;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,36 +34,8 @@ builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
 
 // CQRS Handlers
-builder.Services.AddScoped<GetCategoryQueryHandler>();
-builder.Services.AddScoped<GetActiveCategoriesQueryHandler>();
-builder.Services.AddScoped<GetVisibleCategoriesQueryHandler>();
-builder.Services.AddScoped<GetCategoryByIdQueryHandler>();
-builder.Services.AddScoped<CreateCategoryCommandHandler>();
-builder.Services.AddScoped<RemoveCategoryCommandHandler>();
-builder.Services.AddScoped<HideCategoryCommandHandler>();
-builder.Services.AddScoped<ShowCategoryCommandHandler>();
-builder.Services.AddScoped<UpdateCategoryCommandHandler>();
-builder.Services.AddScoped<ToggleCategoryStatusCommandHandler>();
-builder.Services.AddScoped<ArchiveCategoryCommandHandler>();
-builder.Services.AddScoped<UnarchiveCategoryCommandHandler>();
-builder.Services.AddScoped<SoftDeleteCategoryCommandHandler>();
-builder.Services.AddScoped<HardDeleteCategoryCommandHandler>();
-builder.Services.AddScoped<ApproveCategoryCommandHandler>();
-builder.Services.AddScoped<UpdateCategoryStatusCommandHandler>();
-builder.Services.AddScoped<RejectCategoryCommandHandler>();
+builder.Services.AddApplicationServices();
 
-builder.Services.AddScoped<GetMovieQueryHandler>();
-builder.Services.AddScoped<GetActiveMoviesQueryHandler>();
-builder.Services.AddScoped<GetVisibleMoviesQueryHandler>();
-builder.Services.AddScoped<GetMovieByIdQueryHandler>();
-builder.Services.AddScoped<CreateMovieCommandHandler>();
-builder.Services.AddScoped<RemoveMovieCommandHandler>();
-builder.Services.AddScoped<HideMovieCommandHandler>();
-builder.Services.AddScoped<ShowMovieCommandHandler>();
-builder.Services.AddScoped<UpdateMovieCommandHandler>();
-builder.Services.AddScoped<ToggleMovieStatusCommandHandler>();
-
-builder.Services.AddScoped<CreateUserRegisterCommandHandler>();
 builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<MovieContext>().AddErrorDescriber<CustomErrorDescriber>();
 
 builder.Services.AddControllers();
@@ -83,6 +56,17 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Movie API V1");
     });
 }
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/")
+    {
+        context.Response.Redirect("/swagger/index.html");
+        return;
+    }
+
+    await next();
+});
 
 app.UseHttpsRedirection();
 
