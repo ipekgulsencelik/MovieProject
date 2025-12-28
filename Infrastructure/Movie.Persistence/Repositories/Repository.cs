@@ -24,6 +24,8 @@ namespace Movie.Persistence.Repositories
         // Soft-deleted olmayanlar için ortak query (standart)
         protected IQueryable<T> Query => _set.Where(x => x.DataStatus != DataStatus.Deleted);
 
+        System.Data.Entity.DbSet<T> IRepository<T>.Table => throw new NotImplementedException();
+
         public async Task CreateAsync(T entity)
         {
             await _set.AddAsync(entity);

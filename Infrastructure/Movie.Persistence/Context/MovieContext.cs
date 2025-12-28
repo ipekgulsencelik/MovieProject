@@ -16,6 +16,7 @@ namespace Movie.Persistence.Context
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Cast> Casts { get; set; }
+        public DbSet<Series> Series { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,7 @@ namespace Movie.Persistence.Context
             modelBuilder.ApplyConfiguration(new FilmConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new ReviewConfiguration()); 
+            modelBuilder.ApplyConfiguration(new SeriesConfiguration()); 
         }
     }
 }

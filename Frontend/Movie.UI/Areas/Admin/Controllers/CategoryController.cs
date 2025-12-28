@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Movie.Domain.Entities.Enum;
 using Movie.DTO.DTOs.CategoryDTOs;
 using Movie.UI.Helpers;
 
@@ -10,10 +11,20 @@ namespace Movie.UI.Areas.Admin.Controllers
     {
         private readonly HttpClient _client = HttpClientInstance.CreateClient();
 
+        [HttpGet]
         public async Task<IActionResult> CategoryList()
         {
-            var values = await _client.GetFromJsonAsync<List<ResultCategoryDTO>>("Categories");
-            return View(values);
+            try
+            {
+                var values = await _client.GetFromJsonAsync<List<ResultCategoryDTO>>("Categories");
+                return View(values ?? new List<ResultCategoryDTO>());
+            }
+            catch
+            {
+                TempData["ToastType"] = "error";
+                TempData["ToastMessage"] = "❌ Kategoriler yüklenirken hata oluştu.";
+                return View(new List<ResultCategoryDTO>());
+            }
         }
 
         [HttpGet]
@@ -44,154 +55,156 @@ namespace Movie.UI.Areas.Admin.Controllers
             // ✅ Daha açıklayıcı geri dönüş
             TempData["ToastType"] = "success";
             TempData["ToastMessage"] = "✅ Kategori oluşturuldu. Onay bekliyor.";
-
             return RedirectToAction("CategoryList");
         }
 
+        public record UpdateCategoryStatusRequest(int Id, CategoryStatus CategoryStatus);
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateCategoryStatusRequest request)
+        {
+            if (request == null)
+                return BadRequest("Geçersiz istek.");
+
+            if (request.Id <= 0)
+                return BadRequest("Geçersiz kategori id.");
+
+            // Pending manuel seçilemesin (Pending sadece Approve/Reject ile değişsin)
+            if (request.CategoryStatus == CategoryStatus.Pending)
+                return BadRequest("Pending durumu manuel seçilemez.");
+
+            // WebAPI: POST api/Categories/update-status
+            var res = await _client.PostAsJsonAsync("Categories/update-status", request);
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var apiMsg = await res.Content.ReadAsStringAsync();
+                return BadRequest(string.IsNullOrWhiteSpace(apiMsg) ? "Durum güncellenemedi." : apiMsg);
+            }
+
+            return Ok();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveCategory(int id)
         {
-            if (id <= 0)
-            {
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
-                return RedirectToAction("CategoryList");
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"Categories/approve/{id}");
-            var res = await _client.SendAsync(request);
-
-            if (!res.IsSuccessStatusCode)
-            {
-                var apiMsg = await res.Content.ReadAsStringAsync();
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg)
-                    ? "❌ Kategori onaylanamadı."
-                    : $"❌ {apiMsg}";
-                return RedirectToAction("CategoryList");
-            }
-
-            TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "✅ Kategori onaylandı.";
-            return RedirectToAction("CategoryList");
+            return await PatchAndRedirect(
+                id,
+                $"Categories/approve/{id}",
+                successMsg: "✅ Kategori onaylandı.",
+                errorMsg: "❌ Kategori onaylanamadı."
+            );
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectCategory(int id)
+        {
+            return await PatchAndRedirect(
+                id,
+                $"Categories/reject/{id}",
+                successMsg: "✅ Kategori reddedildi (Pasif).",
+                errorMsg: "❌ Kategori reddedilemedi."
+            );
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveCategory(int id)
         {
-            if (id <= 0)
-            {
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
-                return RedirectToAction("CategoryList");
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"Categories/archive/{id}");
-
-            var res = await _client.SendAsync(request);
-
-            if (!res.IsSuccessStatusCode)
-            {
-                var apiMsg = await res.Content.ReadAsStringAsync();
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg)
-                    ? "❌ Kategori arşivlenemedi."
-                    : $"❌ {apiMsg}";
-                return RedirectToAction("CategoryList");
-            }
-
-            TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "🗄️ Kategori arşivlendi.";
-            return RedirectToAction("CategoryList");
+            return await PatchAndRedirect(
+                id,
+                $"Categories/archive/{id}",
+                successMsg: "🗄️ Kategori arşivlendi.",
+                errorMsg: "❌ Kategori arşivlenemedi."
+            );
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnarchiveCategory(int id)
         {
-            if (id <= 0)
-            {
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
-                return RedirectToAction("CategoryList");
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Patch, $"Categories/unarchive/{id}");
-            var res = await _client.SendAsync(request);
-
-            if (!res.IsSuccessStatusCode)
-            {
-                var apiMsg = await res.Content.ReadAsStringAsync();
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg)
-                    ? "❌ Kategori geri alınamadı."
-                    : $"❌ {apiMsg}";
-                return RedirectToAction("CategoryList");
-            }
-
-            TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "✅ Kategori tekrar aktif edildi.";
-            return RedirectToAction("CategoryList");
+            return await PatchAndRedirect(
+                id,
+                $"Categories/unarchive/{id}",
+                successMsg: "✅ Kategori tekrar aktif edildi.",
+                errorMsg: "❌ Kategori geri alınamadı."
+            );
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeleteCategory(int id)
         {
-            if (id <= 0)
-            {
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
-                return RedirectToAction("CategoryList");
-            }
-
-            var res = await _client.DeleteAsync($"Categories/soft/{id}");
-
-            if (!res.IsSuccessStatusCode)
-            {
-                var apiMsg = await res.Content.ReadAsStringAsync();
-                TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg)
-                    ? "❌ Kategori silinemedi."
-                    : $"❌ {apiMsg}";
-                return RedirectToAction("CategoryList");
-            }
-
-            TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "🗑️ Kategori çöp kutusuna taşındı.";
-            return RedirectToAction("CategoryList");
+            return await DeleteAndRedirect(
+                id,
+                $"Categories/soft/{id}",
+                successMsg: "🗑️ Kategori çöp kutusuna taşındı.",
+                errorMsg: "❌ Kategori silinemedi."
+            );
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> HardDeleteCategory(int id)
         {
+            return await DeleteAndRedirect(
+                id,
+                $"Categories/hard/{id}",
+                successMsg: "🔥 Kategori kalıcı olarak silindi.",
+                errorMsg: "❌ Kategori kalıcı silinemedi."
+            );
+        }
+
+        private async Task<IActionResult> PatchAndRedirect(int id, string apiPath, string successMsg, string errorMsg)
+        {
             if (id <= 0)
             {
                 TempData["ToastType"] = "error";
                 TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
-                return RedirectToAction("CategoryList");
+                return RedirectToAction(nameof(CategoryList));
             }
 
-            var res = await _client.DeleteAsync($"Categories/hard/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Patch, apiPath);
+            var res = await _client.SendAsync(request);
 
             if (!res.IsSuccessStatusCode)
             {
                 var apiMsg = await res.Content.ReadAsStringAsync();
                 TempData["ToastType"] = "error";
-                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg)
-                    ? "❌ Kategori kalıcı silinemedi."
-                    : $"❌ {apiMsg}";
-                return RedirectToAction("CategoryList");
+                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg) ? errorMsg : $"❌ {apiMsg}";
+                return RedirectToAction(nameof(CategoryList));
             }
 
             TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "🔥 Kategori kalıcı olarak silindi.";
-            return RedirectToAction("CategoryList");
+            TempData["ToastMessage"] = successMsg;
+            return RedirectToAction(nameof(CategoryList));
+        }
+
+        private async Task<IActionResult> DeleteAndRedirect(int id, string apiPath, string successMsg, string errorMsg)
+        {
+            if (id <= 0)
+            {
+                TempData["ToastType"] = "error";
+                TempData["ToastMessage"] = "❌ Geçersiz kategori id.";
+                return RedirectToAction(nameof(CategoryList));
+            }
+
+            var res = await _client.DeleteAsync(apiPath);
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var apiMsg = await res.Content.ReadAsStringAsync();
+                TempData["ToastType"] = "error";
+                TempData["ToastMessage"] = string.IsNullOrWhiteSpace(apiMsg) ? errorMsg : $"❌ {apiMsg}";
+                return RedirectToAction(nameof(CategoryList));
+            }
+
+            TempData["ToastType"] = "success";
+            TempData["ToastMessage"] = successMsg;
+            return RedirectToAction(nameof(CategoryList));
         }
     }
 }

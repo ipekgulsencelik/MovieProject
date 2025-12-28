@@ -29,6 +29,8 @@ builder.Services.AddDbContext<MovieContext>(options =>
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped(typeof(ICategoryRepository), typeof(CategoryRepository));
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
+builder.Services.AddScoped<ISeriesRepository, SeriesRepository>();
 
 // CQRS Handlers
 builder.Services.AddScoped<GetCategoryQueryHandler>();
@@ -46,6 +48,8 @@ builder.Services.AddScoped<UnarchiveCategoryCommandHandler>();
 builder.Services.AddScoped<SoftDeleteCategoryCommandHandler>();
 builder.Services.AddScoped<HardDeleteCategoryCommandHandler>();
 builder.Services.AddScoped<ApproveCategoryCommandHandler>();
+builder.Services.AddScoped<UpdateCategoryStatusCommandHandler>();
+builder.Services.AddScoped<RejectCategoryCommandHandler>();
 
 builder.Services.AddScoped<GetMovieQueryHandler>();
 builder.Services.AddScoped<GetActiveMoviesQueryHandler>();

@@ -18,11 +18,16 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
         {
             var category = await _repository.GetByIdIncludingDeletedAsync(command.Id);
             if (category == null)
-                throw new KeyNotFoundException($"Category with ID {command.Id} was not found.");
+                throw new KeyNotFoundException($"Kategori bulunamadı. (Id: {command.Id})");
 
-            // 🔒 Profesyonel kural: Kalıcı silme sadece Deleted veya Archived iken
-            if (category.DataStatus != DataStatus.Deleted && category.CategoryStatus != CategoryStatus.Archived)
-                throw new InvalidOperationException("Kalıcı silmeden önce kategori silinmiş (Deleted) ya da arşivlenmiş (Archived) olmalı.");
+            // 🔒 Kural: Kalıcı silme sadece Deleted veya Archived iken
+            var canHardDelete =
+                category.DataStatus == DataStatus.Deleted ||
+                category.CategoryStatus == CategoryStatus.Archived;
+
+            if (!canHardDelete)
+                throw new InvalidOperationException(
+                    "Kalıcı silmeden önce kategori çöp kutusuna taşınmış (Deleted) ya da arşivlenmiş (Archived) olmalıdır.");
 
             await _repository.RemoveAsync(category);
         }

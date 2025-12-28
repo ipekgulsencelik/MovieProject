@@ -1,6 +1,7 @@
 ﻿using Movie.Application.Features.CQRS.Commands;
 using Movie.Application.Interfaces;
 using Movie.Domain.Entities;
+using Movie.Domain.Entities.Enum;
 
 namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
 {
@@ -15,7 +16,13 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
 
         public async Task Handle(SoftDeleteCategoryCommand command)
         {
-            // repo kendi içinde Deleted kontrolünü yapıyor
+            var category = await _repository.GetByIdAsync(command.Id);
+
+            // 🔒 İş kuralı: Arşivdeki kategori çöp kutusuna taşınamaz
+            if (category.CategoryStatus == CategoryStatus.Archived)
+                throw new InvalidOperationException(
+                    "Arşivdeki bir kategori çöp kutusuna taşınamaz. Önce arşivden çıkarılmalıdır.");
+
             await _repository.DeleteAsync(command.Id);
         }
     }

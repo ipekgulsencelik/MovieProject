@@ -17,10 +17,20 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
         public async Task Handle(ArchiveCategoryCommand command)
         {
             var category = await _repository.GetByIdAsync(command.Id);
-            if (category == null) return;
 
-            // ✅ Soft delete
+            // Zaten arşivliyse işlem yapma
+            if (category.CategoryStatus == CategoryStatus.Archived)
+                return;
+
+            // 🔥 Önceki durumu sakla
+            category.PreviousStatus ??= category.CategoryStatus;
+
+            // 🔥 Arşivle
             category.CategoryStatus = CategoryStatus.Archived;
+
+            // 🔒 Yayından kaldır
+            category.IsActive = false;
+            category.IsVisible = false;
 
             await _repository.UpdateAsync(category);
         }

@@ -9,8 +9,10 @@ namespace Movie.Domain.Entities
         public string Slug { get; set; } = string.Empty;
         public string? Description { get; set; }
         public int DisplayOrder { get; set; } = 0;
+        public CategoryStatus? PreviousStatus { get; set; }
         public CategoryStatus CategoryStatus { get; set; } = CategoryStatus.Pending;
 
         public virtual ICollection<Film> Films { get; set; } = new HashSet<Film>();
+        public virtual ICollection<Series> Series { get; set; } = new HashSet<Series>();
     }
 }

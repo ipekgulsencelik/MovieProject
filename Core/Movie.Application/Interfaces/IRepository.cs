@@ -1,10 +1,13 @@
 ﻿using Movie.Domain.Entities.Abstract;
+using System.Data.Entity;
 using System.Linq.Expressions;
 
 namespace Movie.Application.Interfaces
 {
     public interface IRepository<T> where T : BaseEntity
     {
+        DbSet<T> Table { get; }
+
         Task<List<T>> GetListAsync();                     // Deleted hariç (standart liste)
         Task<List<T>> GetActiveAsync();                   // Deleted hariç + IsActive = true
         Task<List<T>> GetVisibleAsync();                  // Deleted hariç + IsActive = true + IsVisible = true

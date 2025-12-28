@@ -17,10 +17,32 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
         public async Task Handle(UnarchiveCategoryCommand command)
         {
             var category = await _repository.GetByIdAsync(command.Id);
-            if (category == null) return;
 
-            // Profesyonel tercih: geri alınca Active
-            category.CategoryStatus = CategoryStatus.Active;
+            // Sadece Archived olan geri alınsın
+            if (category.CategoryStatus != CategoryStatus.Archived)
+                return;
+
+            // 🔥 PreviousStatus varsa ona dön, yoksa Active fallback
+            var targetStatus = category.PreviousStatus ?? CategoryStatus.Active;
+
+            // ❌ Pending'e dönmeyi engelle -> Active'e düş
+            if (targetStatus == CategoryStatus.Pending)
+                targetStatus = CategoryStatus.Active;
+
+            category.CategoryStatus = targetStatus;
+            category.PreviousStatus = null;
+
+            // ✅ BaseEntity uyumu
+            if (targetStatus == CategoryStatus.Active)
+            {
+                category.IsActive = true;
+                category.IsVisible = true;
+            }
+            else // Passive (veya olası diğer durumlar)
+            {
+                category.IsActive = false;
+                category.IsVisible = false;
+            }
 
             await _repository.UpdateAsync(category);
         }

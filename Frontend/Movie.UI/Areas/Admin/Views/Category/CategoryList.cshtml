@@ -130,7 +130,6 @@
         font-weight: 900;
     }
 
-    /* Archived row */
     .row-archived {
         opacity: .62;
         background: #f9fafb !important;
@@ -152,7 +151,6 @@
         white-space: nowrap;
     }
 
-    /* Count badges (clickable) */
     .stat-link {
         position: relative;
         display: inline-flex;
@@ -228,7 +226,6 @@
         color: #92400e;
     }
 
-    /* Disabled (0 counts) */
     .stat-disabled {
         opacity: .55;
         cursor: not-allowed;
@@ -241,7 +238,6 @@
             transform: none !important;
         }
 
-    /* Rating */
     .rating-wrap {
         display: flex;
         flex-direction: column;
@@ -274,21 +270,10 @@
         border-radius: 999px;
     }
 
-    .rating-low {
-        background: linear-gradient(90deg, #ef4444, #f97316);
-    }
-
-    .rating-mid {
-        background: linear-gradient(90deg, #f59e0b, #fbbf24);
-    }
-
-    .rating-high {
-        background: linear-gradient(90deg, #10b981, #22c55e);
-    }
-
-    .rating-empty {
-        background: linear-gradient(90deg, #d1d5db, #e5e7eb);
-    }
+    .rating-low { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .rating-mid { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .rating-high { background: linear-gradient(90deg, #10b981, #22c55e); }
+    .rating-empty { background: linear-gradient(90deg, #d1d5db, #e5e7eb); }
 
     .no-rating {
         display: inline-flex;
@@ -304,7 +289,6 @@
         white-space: nowrap;
     }
 
-    /* Status */
     .status-pill {
         padding: 6px 12px;
         border-radius: 999px;
@@ -317,25 +301,10 @@
         border: 1px solid rgba(0,0,0,.04);
     }
 
-    .status-active {
-        background: #ecfdf5;
-        color: #065f46;
-    }
-
-    .status-passive {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status-archived {
-        background: #f3f4f6;
-        color: #374151;
-    }
-
-    .status-pending {
-        background: #fffbeb;
-        color: #92400e;
-    }
+    .status-active { background: #ecfdf5; color: #065f46; }
+    .status-passive { background: #fee2e2; color: #991b1b; }
+    .status-archived { background: #f3f4f6; color: #374151; }
+    .status-pending { background: #fffbeb; color: #92400e; }
 
     .status-select {
         border-radius: 999px;
@@ -354,7 +323,6 @@
             background: #f9fafb;
         }
 
-    /* Actions */
     .action-btn {
         padding: 8px 14px;
         border-radius: var(--radius);
@@ -370,35 +338,15 @@
         cursor: pointer;
     }
 
-    .btn-update {
-        background: var(--success);
-    }
+    .btn-update { background: var(--success); }
+    .btn-archive { background: var(--warning); color: #111827 !important; }
+    .btn-restore { background: #0ea5e9; color: #fff !important; }
+    .btn-harddelete { background: #7f1d1d; color: #fff !important; }
 
-    .btn-archive {
-        background: var(--warning);
-        color: #111827 !important;
-    }
+    .btn-approve { background: var(--primary); }
+    .btn-reject { background: var(--danger); }
+    .btn-softdelete { background: var(--danger); color: #fff !important; }
 
-    .btn-restore {
-        background: #0ea5e9;
-        color: #fff !important;
-    }
-
-    .btn-harddelete {
-        background: #7f1d1d;
-        color: #fff !important;
-    }
-
-    /* Approve / Reject */
-    .btn-approve {
-        background: var(--primary);
-    }
-
-    .btn-reject {
-        background: var(--danger);
-    }
-
-    /* Empty */
     .empty-state {
         border: 1px dashed #e5e7eb;
         border-radius: 16px;
@@ -419,28 +367,24 @@
             font-weight: 700;
         }
 
+    .mini-spinner {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid rgba(255,255,255,.45);
+        border-top-color: #fff;
+        display: inline-block;
+        animation: spin .7s linear infinite;
+    }
+
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
     @@media (max-width: 768px) {
-        .cat-table thead {
-            display: none;
-        }
-
-        .cat-table tbody td {
-            display: block;
-            padding: 10px 12px;
-        }
-
-        .cat-table tbody tr {
-            padding: 10px 0;
-        }
-
-        .cat-desc {
-            max-width: 100%;
-            white-space: normal;
-        }
-
-        .rating-wrap {
-            min-width: auto;
-        }
+        .cat-table thead { display: none; }
+        .cat-table tbody td { display: block; padding: 10px 12px; }
+        .cat-table tbody tr { padding: 10px 0; }
+        .cat-desc { max-width: 100%; white-space: normal; }
+        .rating-wrap { min-width: auto; }
     }
 </style>
 
@@ -518,7 +462,6 @@
                     {
                         count++;
 
-                        // Status mapping
                         string statusClass = "status-archived";
                         string statusIcon = "archive-outline";
                         string statusTr = "Arşiv";
@@ -530,25 +473,21 @@
                                 statusIcon = "time-outline";
                                 statusTr = "Onay Bekliyor";
                                 break;
-
                             case CategoryStatus.Active:
                                 statusClass = "status-active";
                                 statusIcon = "checkmark-circle-outline";
                                 statusTr = "Aktif";
                                 break;
-
                             case CategoryStatus.Passive:
                                 statusClass = "status-passive";
                                 statusIcon = "close-circle-outline";
                                 statusTr = "Pasif";
                                 break;
-
                             case CategoryStatus.Archived:
                                 statusClass = "status-archived";
                                 statusIcon = "archive-outline";
                                 statusTr = "Arşiv";
                                 break;
-
                             default:
                                 statusClass = "status-archived";
                                 statusIcon = "help-circle-outline";
@@ -558,7 +497,6 @@
 
                         var rowClass = item.CategoryStatus == CategoryStatus.Archived ? "row-archived" : "";
 
-                        // AvgRating: 0..10 -> 0..100
                         var avg = item.AvgRating;
                         if (avg < 0) avg = 0;
                         if (avg > 10) avg = 10;
@@ -567,18 +505,9 @@
                         var avgPercent = (int)Math.Round(avg * 10, 0);
 
                         string ratingClass = "rating-mid";
-                        if (!hasRating)
-                        {
-                            ratingClass = "rating-empty";
-                        }
-                        else if (avg < 3)
-                        {
-                            ratingClass = "rating-low";
-                        }
-                        else if (avg >= 7)
-                        {
-                            ratingClass = "rating-high";
-                        }
+                        if (!hasRating) ratingClass = "rating-empty";
+                        else if (avg < 3) ratingClass = "rating-low";
+                        else if (avg >= 7) ratingClass = "rating-high";
 
                         <tr class="@rowClass" data-archived="@(item.CategoryStatus == CategoryStatus.Archived ? "1" : "0")">
                             <td><div class="row-id">@count</div></td>
@@ -591,7 +520,6 @@
 
                             <td><strong>@item.DisplayOrder</strong></td>
 
-                            <!-- 🎬 Filmler -->
                             <td>
                                 @if (item.MovieCount > 0)
                                 {
@@ -615,7 +543,6 @@
                                 }
                             </td>
 
-                            <!-- 💬 Yorumlar -->
                             <td>
                                 @if (item.ReviewCount > 0)
                                 {
@@ -639,7 +566,6 @@
                                 }
                             </td>
 
-                            <!-- ⭐ Ortalama -->
                             <td>
                                 @if (!hasRating)
                                 {
@@ -665,7 +591,7 @@
                                 }
                             </td>
 
-                            <!-- Durum -->
+                            <!-- ✅ DURUM (TEK SELECT - DUPLICATE YOK) -->
                             <td>
                                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                                     <span class="status-pill @statusClass" data-role="status-pill" title="@item.CategoryStatus">
@@ -673,25 +599,44 @@
                                         <span class="js-status-text">@statusTr</span>
                                     </span>
 
-                                    <select class="status-select js-status"
-                                            data-id="@item.Id"
-                                            data-old="@((int)item.CategoryStatus)"
-                                    @(item.CategoryStatus == CategoryStatus.Pending ? "disabled" : "")>
-                                        <option value="@((int)CategoryStatus.Pending)" selected="@(item.CategoryStatus == CategoryStatus.Pending)">Onay Bekliyor</option>
-                                        <option value="@((int)CategoryStatus.Active)" selected="@(item.CategoryStatus == CategoryStatus.Active)">Aktif</option>
-                                        <option value="@((int)CategoryStatus.Passive)" selected="@(item.CategoryStatus == CategoryStatus.Passive)">Pasif</option>
-                                        <option value="@((int)CategoryStatus.Archived)" selected="@(item.CategoryStatus == CategoryStatus.Archived)">Arşiv</option>
-                                    </select>
+                                    @if (item.CategoryStatus != CategoryStatus.Pending)
+                                    {
+                                        <select class="status-select js-status"
+                                                data-id="@item.Id"
+                                                data-old="@((int)item.CategoryStatus)">
+
+                                            <option value="@((int)CategoryStatus.Active)"
+                                                    selected="@(item.CategoryStatus == CategoryStatus.Active)">
+                                                Aktif
+                                            </option>
+
+                                            <option value="@((int)CategoryStatus.Passive)"
+                                                    selected="@(item.CategoryStatus == CategoryStatus.Passive)">
+                                                Pasif
+                                            </option>
+
+                                            <option value="@((int)CategoryStatus.Archived)"
+                                                    selected="@(item.CategoryStatus == CategoryStatus.Archived)">
+                                                Arşiv
+                                            </option>
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-rating" data-role="pending-hint" title="Onay/Reddet bekliyor">
+                                            <ion-icon name="time-outline"></ion-icon>
+                                            İşlem bekliyor
+                                        </span>
+                                    }
+
                                 </div>
                             </td>
 
-                            <!-- Sil -->
                             <td>
                                 <div data-role="actions" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                                    <!-- Not archived => actions -->
+
                                     <div data-role="actions-not-archived" style="@(item.CategoryStatus == CategoryStatus.Archived ? "display:none;" : "")">
 
-                                        @* ✅ Pending aksiyonları *@
                                         @if (item.CategoryStatus == CategoryStatus.Pending)
                                         {
                                             <button type="button"
@@ -711,7 +656,6 @@
                                             </button>
                                         }
 
-                                        @* ✅ Pending değilse Arşivle göster *@
                                         @if (item.CategoryStatus != CategoryStatus.Pending)
                                         {
                                             <form asp-area="Admin"
@@ -728,10 +672,24 @@
                                                     Arşivle
                                                 </button>
                                             </form>
+
+                                            <form asp-area="Admin"
+                                                  asp-controller="Category"
+                                                  asp-action="SoftDeleteCategory"
+                                                  method="post"
+                                                  class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="button"
+                                                        class="action-btn btn-softdelete js-softdelete"
+                                                        data-title="@item.Name">
+                                                    <ion-icon name="trash-outline"></ion-icon>
+                                                    Çöp Kutusu
+                                                </button>
+                                            </form>
                                         }
                                     </div>
 
-                                    <!-- Archived => Restore + HardDelete -->
                                     <div data-role="actions-archived" style="@(item.CategoryStatus == CategoryStatus.Archived ? "" : "display:none;")">
                                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                             <form asp-area="Admin"
@@ -765,10 +723,10 @@
                                             </form>
                                         </div>
                                     </div>
+
                                 </div>
                             </td>
 
-                            <!-- Güncelle -->
                             <td>
                                 <a asp-area="Admin"
                                    asp-controller="Category"
@@ -811,39 +769,39 @@
             rows.forEach(r => {
                 const isArchived = r.getAttribute("data-archived") === "1";
 
-                // Arşiv filtresi
                 if (!showArchived && isArchived) {
                     r.style.display = "none";
                     return;
                 }
 
-                // Search filtresi
                 r.style.display = rowMatchesSearch(r, q) ? "" : "none";
             });
 
             if (hint) hint.style.display = showArchived ? "inline-flex" : "none";
         }
 
-        // ✅ Default: arşivler gizli
         toggle.checked = false;
         applyFilters();
 
         toggle.addEventListener("change", applyFilters);
-
-        // Search ile entegre çalışsın
         if (search) search.addEventListener("input", applyFilters);
 
-        // ✅ dışarıdan çağırabilelim (status değişince tekrar uygulatacağız)
         window.applyCategoryFilters = applyFilters;
     })();
 </script>
 
 @section Scripts {
+
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        const STATUS_PENDING = @((int)CategoryStatus.Pending);
+        const STATUS_ACTIVE = @((int)CategoryStatus.Active);
+        const STATUS_PASSIVE = @((int)CategoryStatus.Passive);
+        const STATUS_ARCHIVED = @((int)CategoryStatus.Archived);
+
         const updateStatusUrl = "@updateStatusUrl";
 
         const toast = (icon, title) => {
@@ -863,7 +821,6 @@
             return tokenInput ? tokenInput.value : null;
         };
 
-        // Confirm helpers
         const confirmAndSubmit = (btnSelector, titleText, html, icon, confirmText) => {
             document.querySelectorAll(btnSelector).forEach(btn => {
                 btn.addEventListener("click", function () {
@@ -898,20 +855,39 @@
             "{title} kalıcı olarak silinecek. Bu işlem geri alınamaz!",
             "error", "Evet, kalıcı sil");
 
-        // Inline STATUS update (Ajax) + optimistic UI + rollback
+        confirmAndSubmit(".js-softdelete", "Çöp kutusuna taşınsın mı?",
+            "{title} çöp kutusuna taşınacak. İstersen daha sonra kalıcı silebilirsin.",
+            "warning", "Evet, taşı");
+
+        const setBtnLoading = (btn, isLoading, loadingText = "İşleniyor...") => {
+            if (!btn) return;
+
+            if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+
+            if (isLoading) {
+                btn.disabled = true;
+                btn.style.opacity = ".9";
+                btn.style.filter = "grayscale(10%)";
+                btn.innerHTML = `<span class="mini-spinner"></span> ${loadingText}`;
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = "";
+                btn.style.filter = "";
+                btn.innerHTML = btn.dataset.origHtml || btn.innerHTML;
+            }
+        };
+
         (function () {
-            const selects = document.querySelectorAll(".js-status");
-            if (!selects.length) return;
 
             const statusMap = {
-        @((int)CategoryStatus.Pending):  { cls: "status-pending",  icon: "time-outline",              text: "Onay Bekliyor", archived: false, pending: true  },
-        @((int)CategoryStatus.Active):   { cls: "status-active",   icon: "checkmark-circle-outline",  text: "Aktif",          archived: false, pending: false },
-        @((int)CategoryStatus.Passive):  { cls: "status-passive",  icon: "close-circle-outline",      text: "Pasif",          archived: false, pending: false },
-        @((int)CategoryStatus.Archived): { cls: "status-archived", icon: "archive-outline",           text: "Arşiv",          archived: true,  pending: false }
+                [STATUS_PENDING]: { cls: "status-pending", icon: "time-outline", text: "Onay Bekliyor", archived: false },
+                [STATUS_ACTIVE]: { cls: "status-active", icon: "checkmark-circle-outline", text: "Aktif", archived: false },
+                [STATUS_PASSIVE]: { cls: "status-passive", icon: "close-circle-outline", text: "Pasif", archived: false },
+                [STATUS_ARCHIVED]: { cls: "status-archived", icon: "archive-outline", text: "Arşiv", archived: true }
             };
 
             const applyStatus = (tr, pill, statusInt) => {
-                const cfg = statusMap[statusInt] || { cls: "status-archived", icon: "help-circle-outline", text: "Bilinmiyor", archived: false, pending: false };
+                const cfg = statusMap[statusInt] || { cls: "status-archived", icon: "help-circle-outline", text: "Bilinmiyor", archived: false };
 
                 pill.classList.remove("status-active", "status-passive", "status-archived", "status-pending");
                 pill.classList.add(cfg.cls);
@@ -922,28 +898,25 @@
                 const textEl = pill.querySelector(".js-status-text");
                 if (textEl) textEl.textContent = cfg.text;
 
-                // Archived row UI
                 tr.classList.toggle("row-archived", !!cfg.archived);
-
-                // Archived state sync (toggle filtresi ve UI için)
                 tr.setAttribute("data-archived", cfg.archived ? "1" : "0");
 
-                // Action buttons live toggle (archive/restore)
                 const notArchivedBox = tr.querySelector('[data-role="actions-not-archived"]');
                 const archivedBox = tr.querySelector('[data-role="actions-archived"]');
 
                 if (notArchivedBox) notArchivedBox.style.display = cfg.archived ? "none" : "";
                 if (archivedBox) archivedBox.style.display = cfg.archived ? "" : "none";
 
-                // Pending action buttons toggle
                 const approveBtn = tr.querySelector(".js-approve");
                 const rejectBtn = tr.querySelector(".js-reject");
-                if (approveBtn) approveBtn.style.display = (statusInt === @((int)CategoryStatus.Pending)) ? "" : "none";
-                if (rejectBtn) rejectBtn.style.display = (statusInt === @((int)CategoryStatus.Pending)) ? "" : "none";
+                if (approveBtn) approveBtn.style.display = (statusInt === STATUS_PENDING) ? "" : "none";
+                if (rejectBtn) rejectBtn.style.display = (statusInt === STATUS_PENDING) ? "" : "none";
 
-                // Pending ise select kilitli, değilse açık
-                const sel = tr.querySelector(".js-status");
-                if (sel) sel.disabled = (statusInt === @((int)CategoryStatus.Pending));
+                const softDelBtn = tr.querySelector(".js-softdelete");
+                if (softDelBtn) {
+                    const softForm = softDelBtn.closest("form");
+                    if (softForm) softForm.style.display = (statusInt === STATUS_PENDING) ? "none" : "";
+                }
             };
 
             const postStatus = async (id, statusInt) => {
@@ -961,19 +934,45 @@
                 if (!res.ok) throw new Error("Update failed");
             };
 
-            const bindPendingAction = (selector, targetStatusInt, confirmTitle, confirmHtml, successToast) => {
+            const buildStatusSelectHtml = (id, currentStatus) => {
+                return `
+                    <select class="status-select js-status"
+                            data-id="${id}"
+                            data-old="${currentStatus}">
+                        <option value="${STATUS_ACTIVE}"  ${currentStatus === STATUS_ACTIVE ? 'selected="selected"' : ""}>Aktif</option>
+                        <option value="${STATUS_PASSIVE}" ${currentStatus === STATUS_PASSIVE ? 'selected="selected"' : ""}>Pasif</option>
+                        <option value="${STATUS_ARCHIVED}"${currentStatus === STATUS_ARCHIVED ? 'selected="selected"' : ""}>Arşiv</option>
+                    </select>
+                `;
+            };
+
+            const ensureSelectAfterPending = (tr, id, newStatus) => {
+                const statusCell = tr.querySelector("td:nth-child(8)");
+                if (!statusCell) return;
+
+                const wrap = statusCell.querySelector("div");
+                if (!wrap) return;
+
+                const existing = wrap.querySelector(".js-status");
+                if (existing) return;
+
+                const pendingHint = wrap.querySelector('[data-role="pending-hint"]');
+                if (pendingHint) pendingHint.remove();
+
+                wrap.insertAdjacentHTML("beforeend", buildStatusSelectHtml(id, newStatus));
+            };
+
+            const bindPendingAction = (selector, targetStatusInt, confirmTitle, confirmHtml, successToast, loadingText) => {
                 document.querySelectorAll(selector).forEach(btn => {
                     btn.addEventListener("click", async function () {
+
                         const id = parseInt(this.dataset.id);
                         const title = this.dataset.title || "Kategori";
 
                         const tr = this.closest("tr");
                         const pill = tr ? tr.querySelector('[data-role="status-pill"]') : null;
-                        const sel = tr ? tr.querySelector(".js-status") : null;
 
-                        if (!tr || !pill || !sel) return;
-
-                        const oldVal = parseInt(sel.dataset.old || sel.value || "0");
+                        if (!tr || !pill) return;
 
                         const ask = await Swal.fire({
                             title: confirmTitle,
@@ -987,82 +986,79 @@
 
                         if (!ask.isConfirmed) return;
 
-                        // Optimistic UI
-                        applyStatus(tr, pill, targetStatusInt);
-                        sel.value = String(targetStatusInt);
-                        sel.disabled = false;
+                        setBtnLoading(this, true, loadingText || "İşleniyor...");
 
-                        this.disabled = true;
+                        applyStatus(tr, pill, targetStatusInt);
+                        ensureSelectAfterPending(tr, id, targetStatusInt);
 
                         try {
                             await postStatus(id, targetStatusInt);
 
-                            sel.dataset.old = String(targetStatusInt);
+                            const sel = tr.querySelector(".js-status");
+                            if (sel) sel.dataset.old = String(targetStatusInt);
+
                             toast("success", successToast);
                         } catch (e) {
-                            // Rollback
-                            sel.value = String(oldVal);
-                            applyStatus(tr, pill, oldVal);
-                            toast("error", "❌ İşlem başarısız.");
+                            toast("error", "❌ İşlem başarısız. Sayfayı yenileyip tekrar dene.");
                             console.error(e);
                         } finally {
-                            this.disabled = false;
+                            setBtnLoading(this, false);
                             if (window.applyCategoryFilters) window.applyCategoryFilters();
                         }
                     });
                 });
             };
 
-            // Approve: Pending -> Active
             bindPendingAction(
                 ".js-approve",
-        @((int)CategoryStatus.Active),
+                STATUS_ACTIVE,
                 "Onayla?",
                 "{title} kategorisi aktif edilecek.",
-                "✅ Kategori onaylandı (Aktif)."
+                "✅ Kategori onaylandı (Aktif).",
+                "Onaylanıyor..."
             );
 
-            // Reject: Pending -> Passive
             bindPendingAction(
                 ".js-reject",
-        @((int)CategoryStatus.Passive),
+                STATUS_PASSIVE,
                 "Reddet?",
                 "{title} kategorisi pasif duruma alınacak.",
-                "✅ Kategori reddedildi (Pasif)."
+                "✅ Kategori reddedildi (Pasif).",
+                "Reddediliyor..."
             );
 
-            // Dropdown change handler (non-pending)
-            selects.forEach(sel => {
-                sel.addEventListener("change", async function () {
-                    const tr = this.closest("tr");
-                    const pill = tr ? tr.querySelector('[data-role="status-pill"]') : null;
-                    if (!tr || !pill) return;
+            // ✅ Delegated dropdown change handler
+            document.addEventListener("change", async function (e) {
+                const sel = e.target;
+                if (!sel || !sel.classList || !sel.classList.contains("js-status")) return;
 
-                    const id = parseInt(this.dataset.id);
-                    const oldVal = parseInt(this.dataset.old);
-                    const newVal = parseInt(this.value);
+                const tr = sel.closest("tr");
+                const pill = tr ? tr.querySelector('[data-role="status-pill"]') : null;
+                if (!tr || !pill) return;
 
-                    applyStatus(tr, pill, newVal);
-                    this.disabled = true;
+                const id = parseInt(sel.dataset.id);
+                const oldVal = parseInt(sel.dataset.old || sel.value);
+                const newVal = parseInt(sel.value);
 
-                    try {
-                        await postStatus(id, newVal);
+                applyStatus(tr, pill, newVal);
+                sel.disabled = true;
 
-                        this.dataset.old = newVal;
-                        toast("success", "✅ Durum güncellendi.");
-                    } catch (e) {
-                        this.value = oldVal;
-                        applyStatus(tr, pill, oldVal);
-                        toast("error", "❌ Durum güncellenemedi.");
-                        console.error(e);
-                    } finally {
-                        this.disabled = false;
+                try {
+                    await postStatus(id, newVal);
 
-                        // toggle kapalıysa Archived seçince satır anında gizlensin
-                        if (window.applyCategoryFilters) window.applyCategoryFilters();
-                    }
-                });
+                    sel.dataset.old = String(newVal);
+                    toast("success", "✅ Durum güncellendi.");
+                } catch (err) {
+                    sel.value = String(oldVal);
+                    applyStatus(tr, pill, oldVal);
+                    toast("error", "❌ Durum güncellenemedi.");
+                    console.error(err);
+                } finally {
+                    sel.disabled = false;
+                    if (window.applyCategoryFilters) window.applyCategoryFilters();
+                }
             });
+
         })();
     </script>
 }

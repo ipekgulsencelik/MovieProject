@@ -3,6 +3,7 @@ using Movie.Application.Features.CQRS.Commands;
 using Movie.Application.Features.CQRS.Commands.CategoryCommands;
 using Movie.Application.Features.CQRS.Handlers.CategoryHandlers;
 using Movie.Application.Features.CQRS.Queries.CategoryQueries;
+using Movie.DTO.DTOs.CategoryDTOs;
 
 namespace Movie.WebAPI.Controllers
 {
@@ -30,11 +31,16 @@ namespace Movie.WebAPI.Controllers
         private readonly GetVisibleCategoriesQueryHandler _getVisibleCategoriesQueryHandler;
         private readonly ApproveCategoryCommandHandler _approveCategoryCommandHandler;
 
+        private readonly UpdateCategoryStatusCommandHandler _updateCategoryStatusCommandHandler;
+        private readonly RejectCategoryCommandHandler _rejectCategoryCommandHandler;
+
         public CategoriesController(CreateCategoryCommandHandler createCategoryCommandHandler, GetCategoryByIdQueryHandler getCategoryByIdQueryHandler, GetCategoryQueryHandler getCategoryQueryHandler, UpdateCategoryCommandHandler updateCategoryCommandHandler, RemoveCategoryCommandHandler removeCategoryCommandHandler, ToggleCategoryStatusCommandHandler toggleCategoryStatusCommandHandler, HideCategoryCommandHandler hideCategoryCommandHandler, ShowCategoryCommandHandler showCategoryCommandHandler, GetVisibleCategoriesQueryHandler getVisibleCategoriesQueryHandler, GetActiveCategoriesQueryHandler getActiveCategoriesQueryHandler,
             ArchiveCategoryCommandHandler archiveCategoryCommandHandler,
             UnarchiveCategoryCommandHandler unarchiveCategoryCommandHandler,
             SoftDeleteCategoryCommandHandler softDeleteCategoryCommandHandler,
-            HardDeleteCategoryCommandHandler hardDeleteCategoryCommandHandler, ApproveCategoryCommandHandler approveCategoryCommandHandler)
+            HardDeleteCategoryCommandHandler hardDeleteCategoryCommandHandler, ApproveCategoryCommandHandler approveCategoryCommandHandler,
+            UpdateCategoryStatusCommandHandler updateCategoryStatusCommandHandler,
+            RejectCategoryCommandHandler rejectCategoryCommandHandler)
         {
             _createCategoryCommandHandler = createCategoryCommandHandler;
             _getCategoryByIdQueryHandler = getCategoryByIdQueryHandler;
@@ -54,6 +60,9 @@ namespace Movie.WebAPI.Controllers
             _softDeleteCategoryCommandHandler = softDeleteCategoryCommandHandler;
             _hardDeleteCategoryCommandHandler = hardDeleteCategoryCommandHandler;
             _approveCategoryCommandHandler = approveCategoryCommandHandler;
+
+            _updateCategoryStatusCommandHandler = updateCategoryStatusCommandHandler;
+            _rejectCategoryCommandHandler = rejectCategoryCommandHandler;
         }
 
         [HttpGet]
@@ -118,6 +127,30 @@ namespace Movie.WebAPI.Controllers
             await _hardDeleteCategoryCommandHandler.Handle(new HardDeleteCategoryCommand(id));
             return Ok("Kategori kalıcı olarak silindi.");
         }
+
+        [HttpPatch("reject/{id}")]
+        public async Task<IActionResult> RejectCategory(int id)
+        {
+            await _rejectCategoryCommandHandler.Handle(new RejectCategoryCommand(id));
+            return Ok("Kategori reddedildi (Pasif).");
+        }
+
+        [HttpPost("update-status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateCategoryStatusDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Geçersiz istek.");
+
+            if (dto.Id <= 0)
+                return BadRequest("Geçersiz kategori id.");
+
+            await _updateCategoryStatusCommandHandler.Handle(
+                new UpdateCategoryStatusCommand(dto.Id, dto.CategoryStatus)
+            );
+
+            return Ok("Kategori durumu güncellendi.");
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)

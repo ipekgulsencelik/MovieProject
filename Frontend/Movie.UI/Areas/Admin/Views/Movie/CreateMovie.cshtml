@@ -1,8 +1,800 @@
-﻿
+﻿@using Movie.Domain.Entities.Enum
+@using Movie.DTO.DTOs.CategoryDTOs
+@using Movie.DTO.DTOs.MovieDTOs
+@model CreateMovieDTO
+
 @{
-    ViewData["Title"] = "CreateMovie";
+    ViewData["Title"] = "Film Ekle";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var categories = ViewBag.Categories as List<ResultCategoryDTO> ?? new List<ResultCategoryDTO>();
+    var selectedIds = Model?.CategoryIds ?? new List<int>();
+
+    var today = DateTime.Today.ToString("yyyy-MM-dd");
+    bool hasCategories = categories.Count > 0;
 }
 
-<h1>CreateMovie</h1>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css">
 
+<style>
+    :root {
+        --primary: #6366f1;
+        --muted: #6b7280;
+        --bg-soft: #f8fafc;
+        --text-dark: #1f2937;
+        --danger: #ef4444;
+        --radius: 14px;
+    }
+
+    .page-wrap {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .admin-card {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.04);
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .subtitle {
+        color: var(--muted);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .btn-primary-soft {
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        border: 0;
+        box-shadow: 0 10px 18px rgba(99,102,241,.18);
+        cursor: pointer;
+    }
+
+        .btn-primary-soft[disabled] {
+            opacity: .7;
+            cursor: not-allowed;
+        }
+
+    .btn-ghost {
+        background: #fff;
+        color: var(--text-dark);
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1.4fr .6fr;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    .field {
+        background: var(--bg-soft);
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+        .field label {
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+    .input, .textarea, .select {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 11px 12px;
+        background: #fff;
+        outline: none;
+        font-weight: 700;
+    }
+
+    .textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .hint {
+        margin-top: 8px;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .validation {
+        margin-top: 8px;
+        font-weight: 800;
+        font-size: 12px;
+        color: var(--danger);
+    }
+
+    .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    /* Tom Select uyum */
+    .ts-wrapper.multi .ts-control {
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 10px 10px;
+        min-height: 44px;
+        box-shadow: none;
+        background: #fff;
+        font-weight: 700;
+    }
+
+    .ts-wrapper.multi.focus .ts-control {
+        border-color: rgba(99,102,241,.7);
+        box-shadow: 0 0 0 .2rem rgba(99,102,241,.12);
+    }
+
+    .ts-wrapper .ts-control .item {
+        border-radius: 999px;
+        padding: .28rem .55rem;
+        font-weight: 900;
+    }
+
+    .ts-dropdown {
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 12px 28px rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+        .ts-dropdown .active {
+            background: rgba(99,102,241,.10);
+        }
+
+    /* ✅ Poster preview */
+    .poster-wrap {
+        margin-top: 12px;
+        display: none;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .poster-card {
+        width: 140px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(0,0,0,.06);
+        flex: 0 0 auto;
+    }
+
+    .poster-img {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .poster-meta {
+        flex: 1;
+        min-width: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+        .poster-meta .cap {
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+    .poster-url {
+        font-weight: 800;
+        color: var(--muted);
+        font-size: 12px;
+        word-break: break-all;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    .poster-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: var(--text-dark);
+    }
+
+        .poster-badge.bad {
+            border-color: rgba(239,68,68,.35);
+            color: #b91c1c;
+            background: rgba(239,68,68,.06);
+        }
+
+        .poster-badge.ok {
+            border-color: rgba(16,185,129,.35);
+            color: #047857;
+            background: rgba(16,185,129,.06);
+        }
+
+    .poster-lines {
+        margin: 8px 0 6px;
+        display: grid;
+        gap: 6px;
+    }
+
+    .poster-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+    }
+
+        .poster-line .k {
+            font-weight: 900;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .poster-line .v {
+            font-weight: 900;
+            color: var(--text-dark);
+            font-size: 12px;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 220px;
+        }
+
+    @@media (max-width: 900px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .poster-card {
+            width: 120px;
+        }
+
+        .poster-img {
+            height: 170px;
+        }
+    }
+</style>
+
+<div class="page-wrap">
+    <div class="admin-card">
+        <div class="header">
+            <div>
+                <div class="title">🎬 Film Ekle</div>
+
+                @if (!hasCategories)
+                {
+                    <p class="subtitle" style="color:#b91c1c;">
+                        ⚠️ Kategori bulunamadı. Film ekleyebilmek için önce kategori oluşturmalısın.
+                    </p>
+                }
+                else
+                {
+                    <p class="subtitle">
+                        Film bilgilerini doldurup kaydet. En az 1 kategori seçmelisin.
+                    </p>
+                }
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                @if (!hasCategories)
+                {
+                    <a asp-area="Admin"
+                       asp-controller="Category"
+                       asp-action="CreateCategory"
+                       class="btn-primary-soft">
+                        ➕ Kategori Ekle
+                    </a>
+                }
+
+                <a asp-area="Admin"
+                   asp-controller="Movie"
+                   asp-action="MovieList"
+                   class="btn-ghost">
+                    ← Listeye Dön
+                </a>
+            </div>
+        </div>
+
+        <form asp-area="Admin"
+              asp-controller="Movie"
+              asp-action="CreateMovie"
+              method="post"
+              id="createForm"
+              novalidate>
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+            <div class="form-grid">
+                <!-- SOL -->
+                <div class="field">
+                    <label asp-for="Title">Film Adı</label>
+                    <input asp-for="Title"
+                           class="input"
+                           id="Title"
+                           placeholder="Örn: Interstellar"
+                           spellcheck="false" />
+                    <span asp-validation-for="Title" class="validation"></span>
+
+                    <div style="height:12px;"></div>
+
+                    <label asp-for="CoverImageUrl">Kapak Görsel URL</label>
+                    <input asp-for="CoverImageUrl"
+                           class="input"
+                           id="CoverImageUrl"
+                           placeholder="https://..."
+                           inputmode="url" />
+                    <span asp-validation-for="CoverImageUrl" class="validation"></span>
+
+                    <!-- ✅ Live Preview -->
+                    <div class="poster-wrap" id="posterWrap" aria-live="polite">
+                        <div class="poster-card">
+                            <img id="posterImg"
+                                 class="poster-img"
+                                 alt="Kapak önizleme"
+                                 src=""
+                                 loading="lazy"
+                                 referrerpolicy="no-referrer" />
+                        </div>
+
+                        <div class="poster-meta">
+                            <div class="cap">👀 Önizleme</div>
+
+                            <div class="poster-lines">
+                                <div class="poster-line">
+                                    <span class="k">🎬 Ad</span>
+                                    <span class="v" id="posterTitleText">—</span>
+                                </div>
+                                <div class="poster-line">
+                                    <span class="k">📅 Yıl</span>
+                                    <span class="v" id="posterYearText">—</span>
+                                </div>
+                            </div>
+
+                            <p class="poster-url" id="posterUrlText"></p>
+                            <span class="poster-badge" id="posterBadge" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <div class="hint">💡 İpucu: URL yapıştırınca poster otomatik önizlenir.</div>
+
+                    <div style="height:12px;"></div>
+
+                    <label asp-for="Description">Açıklama</label>
+                    <textarea asp-for="Description"
+                              class="textarea"
+                              placeholder="Film hakkında kısa açıklama (opsiyonel)..."></textarea>
+                    <span asp-validation-for="Description" class="validation"></span>
+
+                    <div class="hint">💡 İpucu: Açıklamayı kısa tut, listede daha temiz görünür.</div>
+
+                    <div style="height:14px;"></div>
+
+                    <label>Kategoriler</label>
+
+                    @if (!hasCategories)
+                    {
+                        <select class="select" disabled>
+                            <option>Kategori bulunamadı</option>
+                        </select>
+                        <div class="hint">Önce kategori eklemelisin.</div>
+                    }
+                    else
+                    {
+                        <select asp-for="CategoryIds"
+                                id="CategoryIds"
+                                class="select"
+                                multiple
+                                required>
+                            @foreach (var cat in categories)
+                            {
+                                var isSelected = selectedIds.Contains(cat.Id);
+                                if (isSelected)
+                                {
+                                    <option value="@cat.Id" selected="selected">@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
+
+                        <span asp-validation-for="CategoryIds" class="validation"></span>
+                        <span class="validation" id="CategoryIdsClientError" style="display:none;"></span>
+                        <div class="hint">Yazarak arayabilirsin. Seçtiklerin tag olarak görünür.</div>
+                    }
+                </div>
+
+                <!-- SAĞ -->
+                <div class="field">
+                    <label asp-for="Rating">Puan (0-10)</label>
+                    <input asp-for="Rating"
+                           class="input"
+                           type="number"
+                           min="0"
+                           max="10"
+                           step="0.1"
+                           placeholder="Örn: 8.7" />
+                    <span asp-validation-for="Rating" class="validation"></span>
+                    <div class="hint">Opsiyonel. İstersen boş bırak.</div>
+
+                    <div style="height:14px;"></div>
+
+                    <label asp-for="Duration">Süre (dk)</label>
+                    <input asp-for="Duration"
+                           class="input"
+                           type="number"
+                           min="1"
+                           max="999"
+                           placeholder="Örn: 120" />
+                    <span asp-validation-for="Duration" class="validation"></span>
+
+                    <div style="height:14px;"></div>
+
+                    <label asp-for="ReleaseDate">Yayın Tarihi</label>
+                    <input asp-for="ReleaseDate"
+                           class="input"
+                           id="ReleaseDate"
+                           type="date"
+                           max="@today" />
+                    <span asp-validation-for="ReleaseDate" class="validation"></span>
+
+                    <div style="height:14px;"></div>
+
+                    <label asp-for="MovieStatus">Durum</label>
+                    <select asp-for="MovieStatus" class="select">
+                        @{
+                            var current = (int)Model.MovieStatus;
+                        }
+                        @foreach (MovieStatus status in Enum.GetValues(typeof(MovieStatus)))
+                        {
+                            var val = (int)status;
+                            <option value="@val" selected="@(val == current ? "selected" : null)">@status</option>
+                        }
+                    </select>
+                    <span asp-validation-for="MovieStatus" class="validation"></span>
+
+                    <div class="hint">Yayın durumu / liste görünümü için kullanılır.</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a asp-area="Admin" asp-controller="Movie" asp-action="MovieList" class="btn-ghost">
+                    Vazgeç
+                </a>
+
+                <button type="submit"
+                        class="btn-primary-soft"
+                        id="btnSave"
+                @(!hasCategories ? "disabled" : null)
+                        data-no-categories="@(!hasCategories ? "1" : "0")">
+                    <span class="btn-text">✅ Kaydet</span>
+                    <span class="btn-spinner" style="display:none; align-items:center;">
+                        <svg width="18" height="18" viewBox="0 0 50 50" aria-hidden="true">
+                            <circle cx="25" cy="25" r="20"
+                                    fill="none"
+                                    stroke="white"
+                                    stroke-width="5"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="31.4 31.4">
+                                <animateTransform attributeName="transform"
+                                                  type="rotate"
+                                                  from="0 25 25"
+                                                  to="360 25 25"
+                                                  dur="0.8s"
+                                                  repeatCount="indefinite" />
+                            </circle>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    <script>
+        // ✅ Disable + spinner on submit
+        (function () {
+            const form = document.getElementById("createForm");
+            const btn = document.getElementById("btnSave");
+            if (!form || !btn) return;
+
+            function unlock() {
+                btn.removeAttribute("disabled");
+                const t = btn.querySelector(".btn-text");
+                const s = btn.querySelector(".btn-spinner");
+                if (t) t.style.display = "inline";
+                if (s) s.style.display = "none";
+            }
+
+            form.addEventListener("submit", function () {
+                // Client-side validation fail olursa buton kilitlenmesin
+                try {
+                    if (window.jQuery && jQuery(form).data("validator") && !jQuery(form).valid()) {
+                        unlock();
+                        return;
+                    }
+                } catch { /* ignore */ }
+
+                btn.setAttribute("disabled", "disabled");
+                btn.querySelector(".btn-text").style.display = "none";
+                btn.querySelector(".btn-spinner").style.display = "inline-flex";
+            });
+
+            // Browser native validation devreye girerse geri aç
+            form.addEventListener("invalid", function () {
+                unlock();
+            }, true);
+        })();
+
+        // ✅ Tom Select init
+        (function () {
+            const el = document.getElementById("CategoryIds");
+            if (!el || el.tomselect) return;
+
+            new TomSelect(el, {
+                plugins: ['remove_button'],
+                hideSelected: true,
+                closeAfterSelect: false,
+                placeholder: "Kategori seç (yazarak ara)..."
+            });
+        })();
+
+        // ✅ CoverImageUrl Live Preview + Title/Year meta
+        (function () {
+            const input = document.getElementById("CoverImageUrl");
+            const wrap = document.getElementById("posterWrap");
+            const img = document.getElementById("posterImg");
+            const urlText = document.getElementById("posterUrlText");
+            const badge = document.getElementById("posterBadge");
+
+            const titleInput = document.getElementById("Title");
+            const dateInput = document.getElementById("ReleaseDate");
+            const titleText = document.getElementById("posterTitleText");
+            const yearText = document.getElementById("posterYearText");
+
+            if (!input || !wrap || !img || !urlText || !badge) return;
+
+            let lastUrl = "";
+            let timer = null;
+
+            function isHttpUrl(value) {
+                return /^https?:\/\/.+/i.test(value);
+            }
+
+            function setBadge(type, text) {
+                badge.style.display = "inline-flex";
+                badge.className = "poster-badge " + (type === "ok" ? "ok" : "bad");
+                badge.textContent = text;
+            }
+
+            function updateMeta() {
+                const t = (titleInput?.value || "").trim();
+                const d = (dateInput?.value || "").trim(); // yyyy-MM-dd
+                const year = d ? d.slice(0, 4) : "";
+
+                if (titleText) titleText.textContent = t || "—";
+                if (yearText) yearText.textContent = year || "—";
+            }
+
+            function hidePreview() {
+                wrap.style.display = "none";
+                img.removeAttribute("src");
+                urlText.textContent = "";
+                badge.style.display = "none";
+                badge.className = "poster-badge";
+                badge.textContent = "";
+
+                if (titleText) titleText.textContent = "—";
+                if (yearText) yearText.textContent = "—";
+            }
+
+            function showPreview(url) {
+                wrap.style.display = "flex";
+                urlText.textContent = url;
+
+                setBadge("ok", "Yükleniyor...");
+
+                const src = url + (url.includes("?") ? "&" : "?") + "t=" + Date.now();
+
+                img.onload = function () {
+                    setBadge("ok", "Görsel hazır ✅");
+                };
+
+                img.onerror = function () {
+                    setBadge("bad", "Görsel yüklenemedi ❌");
+                };
+
+                img.src = src;
+            }
+
+            function handle() {
+                const url = (input.value || "").trim();
+
+                if (!url) {
+                    lastUrl = "";
+                    hidePreview();
+                    return;
+                }
+
+                updateMeta();
+
+                if (!isHttpUrl(url)) {
+                    wrap.style.display = "flex";
+                    urlText.textContent = url;
+                    img.removeAttribute("src");
+                    setBadge("bad", "URL http/https olmalı");
+                    return;
+                }
+
+                if (url === lastUrl) return;
+                lastUrl = url;
+
+                showPreview(url);
+            }
+
+            if (titleInput) titleInput.addEventListener("input", updateMeta);
+            if (dateInput) dateInput.addEventListener("change", updateMeta);
+
+            input.addEventListener("input", function () {
+                clearTimeout(timer);
+                timer = setTimeout(handle, 350);
+            });
+
+            updateMeta();
+            handle();
+        })();
+
+        // ✅ TomSelect + multiple required için client-side zorunluluk kontrolü
+        (function () {
+            const form = document.getElementById("createForm");
+            const select = document.getElementById("CategoryIds");
+            const err = document.getElementById("CategoryIdsClientError");
+
+            if (!form || !select || !err) return;
+
+            function showError(msg) {
+                err.textContent = msg;
+                err.style.display = "block";
+                select.focus();
+
+                if (window.Swal) {
+                    Swal.fire({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true,
+                        icon: "warning",
+                        title: msg
+                    });
+                }
+            }
+
+            function clearError() {
+                err.textContent = "";
+                err.style.display = "none";
+            }
+
+            select.addEventListener("change", function () {
+                if (select.selectedOptions && select.selectedOptions.length > 0) clearError();
+            });
+
+            form.addEventListener("submit", function (e) {
+                const hasAny = select.selectedOptions && select.selectedOptions.length > 0;
+
+                if (!hasAny) {
+                    e.preventDefault();
+                    clearError();
+                    showError("Lütfen en az 1 kategori seç.");
+                }
+            });
+        })();
+
+        // ✅ Kategori yoksa Kaydet disable + bilgilendirme
+        (function () {
+            const btn = document.getElementById("btnSave");
+            if (!btn) return;
+
+            const noCats = btn.getAttribute("data-no-categories") === "1";
+            if (!noCats) return;
+
+            btn.setAttribute("disabled", "disabled");
+
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                if (window.Swal) {
+                    Swal.fire({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 2400,
+                        timerProgressBar: true,
+                        icon: "info",
+                        title: "Önce kategori eklemelisin. Kategori olmadan film kaydedilemez."
+                    });
+                }
+            });
+        })();
+
+        // TempData toast
+        (function () {
+            const msg = "@(TempData["ToastMessage"] ?? "")";
+            if (!msg) return;
+
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                icon: "@(TempData["ToastType"] ?? "success")",
+                title: msg
+            });
+        })();
+    </script>
+}

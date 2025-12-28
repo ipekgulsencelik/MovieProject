@@ -18,12 +18,19 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
         {
             var category = await _repository.GetByIdAsync(command.Id);
 
+            // ✅ Sadece Pending onaylanır
+            if (category.CategoryStatus != CategoryStatus.Pending)
+                throw new InvalidOperationException("Sadece Onay Bekleyen (Pending) kategoriler onaylanabilir.");
+
             // ✅ Pending -> Active
             category.CategoryStatus = CategoryStatus.Active;
 
-            // istersen: aktifken görünür de olsun
-            // category.IsActive = true; (BaseEntity’de varsa)
-            // category.IsVisible = true;
+            // ✅ Onaylanan kategori yayına alınır
+            category.IsActive = true;
+            category.IsVisible = true;
+
+            // ✅ Pending’den çıkınca previous temiz kalsın
+            category.PreviousStatus = null;
 
             await _repository.UpdateAsync(category);
         }

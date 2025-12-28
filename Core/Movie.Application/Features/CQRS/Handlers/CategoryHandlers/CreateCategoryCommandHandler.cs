@@ -29,7 +29,7 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
             // ✅ İş kuralı: yeni kategori her zaman Pending
             category.CategoryStatus = CategoryStatus.Pending;
 
-            // ✅ BaseEntity uyumu (Pending => usable olmasın)
+            // ✅ BaseEntity uyumu
             category.IsActive = false;
             category.IsVisible = false;
             category.DataStatus = DataStatus.Created;
@@ -52,8 +52,8 @@ namespace Movie.Application.Features.CQRS.Handlers.CategoryHandlers
             var slug = baseSlug;
             var i = 2;
 
-            // Deleted dahil çakışmayı engelle
-            while (await _repository.AnyAsync(x => x.Slug == slug))
+            // ✅ Deleted dahil çakışmayı engelle
+            while (await _repository.AnyAsync(x => x.Slug == slug, includeDeleted: true))
                 slug = $"{baseSlug}-{i++}";
 
             return slug;

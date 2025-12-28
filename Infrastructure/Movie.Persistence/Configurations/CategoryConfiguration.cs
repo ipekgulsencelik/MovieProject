@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Movie.Domain.Entities;
+using Movie.Domain.Entities.Enum;
 
 namespace Movie.Persistence.Configurations
 {
@@ -15,6 +16,10 @@ namespace Movie.Persistence.Configurations
                    .IsRequired()
                    .HasMaxLength(150);
 
+            builder.Property(x => x.Slug)
+                   .IsRequired()
+                   .HasMaxLength(200);
+
             // Description
             builder.Property(x => x.Description)
                    .HasMaxLength(1000);
@@ -25,10 +30,15 @@ namespace Movie.Persistence.Configurations
 
             // ✅ Enum -> int (DB DEFAULT YOK → sentinel uyarısı çıkmaz)
             builder.Property(x => x.CategoryStatus)
-                   .HasConversion<int>();
+                .HasConversion<int>()
+                .HasDefaultValue(CategoryStatus.Pending);
+
+            builder.Property(x => x.PreviousStatus)
+                   .HasConversion<int?>();
 
             // Indexes
             builder.HasIndex(x => x.Name);
+            builder.HasIndex(x => x.Slug).IsUnique();
             builder.HasIndex(x => new { x.CategoryStatus, x.DisplayOrder });
         }
     }

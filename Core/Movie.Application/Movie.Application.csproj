@@ -7,6 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\CQRS\Handlers\SeriesHandlers\**" />
+    <EmbeddedResource Remove="Features\CQRS\Handlers\SeriesHandlers\**" />
+    <None Remove="Features\CQRS\Handlers\SeriesHandlers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\ArchiveSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\CreateSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetSeriesByIdQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\GetSeriesQueryHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\HardDeleteSeriesCommandHandler.cs" />
+    <Compile Include="Features\CQRS\Handlers\SeriesHandlers\SoftDeleteSeriesCommandHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
