@@ -2,13 +2,22 @@
 using Movie.Application.Features.CQRS.Handlers.MovieHandlers;
 using Movie.Application.Features.CQRS.Handlers.SeriesHandlers;
 using Movie.Application.Features.CQRS.Handlers.UserRegisterHandlers;
+using Movie.Application.Features.Mediator.Handlers.TagHandlers;
+using System.Reflection;
 
 namespace Movie.WebAPI.Extensions
 {
-    public static class ServiceRegistrationExtensions
+    public static class ApplicationRegistration
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddHttpClient();
+
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+            services.AddMediatR(config =>
+                config.RegisterServicesFromAssembly(typeof(GetTagQueryHandler).Assembly));
+
             // CQRS Handlers - Category
             services.AddScoped<GetCategoryQueryHandler>();
             services.AddScoped<GetActiveCategoriesQueryHandler>();
